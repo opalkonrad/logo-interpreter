@@ -29,7 +29,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Margin="0 0 0 3" Text="Code Editor" FontWeight="Bold" />
-                <TextBox Grid.Row="1" Padding="3" AcceptsReturn="True" AcceptsTab="True" />
+                <TextBox x:Name="CodeEditorTextBox" Grid.Row="1" Padding="3" AcceptsReturn="True" AcceptsTab="True" />
             </Grid>
         </Grid>
 
@@ -42,7 +42,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Margin="0 10 0 3" Text="Console" FontWeight="Bold" />
-                <TextBox Grid.Row="1" Padding="3" />
+                <TextBox x:Name="ConsoleTextBox" Grid.Row="1" Padding="3" />
             </Grid>
         </Grid>
 
@@ -51,10 +51,12 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" Content="File" MaxHeight="30" MaxWidth="125" />
-            <Button Grid.Column="1" Content="Run" MaxHeight="30" MaxWidth="125" />
+            <Button Click="Reset_Click"  Grid.Column="0" Content="Reset" MaxHeight="30" MaxWidth="125" />
+            <Button Click="File_Click"  Grid.Column="1" Content="File" MaxHeight="30" MaxWidth="125" />
+            <Button Click="Run_Click"  Grid.Column="2" Content="Run" MaxHeight="30" MaxWidth="125" />
         </Grid>
 
         <!--Canvas-->
@@ -66,7 +68,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Margin="0 0 0 3" Text="Canvas" FontWeight="Bold" />
-                <Canvas Grid.Row="1" Background="#eee" />
+                <Canvas x:Name="MainCanvas" Grid.Row="1" Background="#eee" />
             </Grid>
         </Grid>
 
