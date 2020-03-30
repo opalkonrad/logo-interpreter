@@ -38,6 +38,9 @@ namespace LogoInterpreter
         {
             OpenFileDialog openFile = new OpenFileDialog();
 
+            // Filter - only *.txt files
+            openFile.Filter = "Text|*.txt";
+
             if (openFile.ShowDialog() == true)
             {
                 CodeEditorTextBox.Text = File.ReadAllText(openFile.FileName);
