@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Win32;
+using LogoInterpreter.Interpreter.Lexer;
 
 namespace LogoInterpreter
 {
@@ -49,6 +50,8 @@ namespace LogoInterpreter
 
         private void Run_Click(object sender, RoutedEventArgs e)
         {
+            Lexer lexer = new Lexer(CodeEditorTextBox.Text);
+
             Line line = new Line();
             line.Stroke = System.Windows.Media.Brushes.Black;
 

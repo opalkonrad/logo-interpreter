@@ -60,16 +60,14 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         [TokenCode("+")] PLUS,
         [TokenCode("-")] MINUS,
-        [TokenCode("|")] OR,
 
         [TokenCode("*")] ASTERISK,
         [TokenCode("/")] SLASH,
-        [TokenCode("&")] AND,
 
         [TokenCode("EOF")] EOF
     }
 
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    //[AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
     public class TokenCodeAttribute : Attribute
     {
         private readonly string tokenCode;
