@@ -51,6 +51,7 @@ namespace LogoInterpreter
         private void Run_Click(object sender, RoutedEventArgs e)
         {
             Lexer lexer = new Lexer(CodeEditorTextBox.Text);
+            ConsoleTextBox.Text = lexer.NextToken().ToString();
 
             Line line = new Line();
             line.Stroke = System.Windows.Media.Brushes.Black;

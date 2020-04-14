@@ -25,6 +25,11 @@ namespace LogoInterpreter.Interpreter.Lexer
         {
             get { return val; }
         }
+
+        public override string ToString()
+        {
+            return "Token: " + Type + " " + Val;
+        }
     }
 
     enum TokenType
@@ -48,6 +53,7 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         [TokenCode(".")] DOT,
         [TokenCode(",")] COMMA,
+        [TokenCode("'")] QUOTATION,
 
         [TokenCode("=")] EQUAL,
         [TokenCode("!=")] NOTEQUAL,
@@ -64,7 +70,8 @@ namespace LogoInterpreter.Interpreter.Lexer
         [TokenCode("*")] ASTERISK,
         [TokenCode("/")] SLASH,
 
-        [TokenCode("EOF")] EOF
+        [TokenCode("EOF")] EOF,
+        [TokenCode("ERR")] ERR
     }
 
     //[AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
