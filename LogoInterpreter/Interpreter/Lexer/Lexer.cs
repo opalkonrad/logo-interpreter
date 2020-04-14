@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -7,18 +8,44 @@ namespace LogoInterpreter.Interpreter.Lexer
 {
     class Lexer
     {
-        private readonly string text;
+        private string text;
         private int currPos;
         private bool interpret = true;
+        private Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
+        {
+            { "num", TokenType.NUM },
+            { "str", TokenType.STR },
+            { "if", TokenType.IF },
+            { "else", TokenType.ELSE },
+            { "repeat", TokenType.REPEAT },
+            { "func", TokenType.FUNC },
+            { "new", TokenType.NEW },
+            { "Turtle", TokenType.TURTLE }
+        };
+
+        public Lexer()
+        {
+
+        }
 
         public Lexer(string text)
         {
             this.text = text;
         }
 
+        public string Text
+        {
+            set { this.text = value; }
+        }
+
         public Token NextToken()
         {
             skipWhitespace();
+
+            if (currPos >= text.Length)
+            {
+                return new Token(TokenType.EOF, "EOF");
+            }
 
             switch (text[currPos])
             {
@@ -45,6 +72,10 @@ namespace LogoInterpreter.Interpreter.Lexer
                 case ',':
                     currPos++;
                     return new Token(TokenType.COMMA, ",");
+
+                case ';':
+                    currPos++;
+                    return new Token(TokenType.SEMICOLON, ";");
 
                 case '+':
                     currPos++;
@@ -117,44 +148,54 @@ namespace LogoInterpreter.Interpreter.Lexer
                     return new Token(TokenType.QUOTATION, "\'");
 
                 default:
-                    if (char.IsLetter(text[currPos]))
+                    if (char.IsLetter(text[currPos]) && interpret)
                     {
-                        if (interpret)
+                        string ident = findIdentifier();
+                        TokenType value;
+                        if (keywords.TryGetValue(ident, out value))
                         {
-                            string ident = findIdentifier();
-                            return new Token(TokenType.IDENTIFIER, ident);
+                            return new Token(value, ident);
                         }
-                        else
-                        {
-                            string str = findStr();
-                            return new Token(TokenType.STR, str);
-                        }
+                        return new Token(TokenType.IDENTIFIER, ident);
                     }
-                    else if (char.IsDigit(text[currPos]))
+                    else if (char.IsDigit(text[currPos]) && interpret)
                     {
-                        if (interpret)
-                        {
-                            string num = findIdentifier();
-                            return new Token(TokenType.NUM, num);
-                        }
-                        else
-                        {
-                            string str = findStr();
-                            return new Token(TokenType.STR, str);
-                        }
+                        string num = findNum();
+                        return new Token(TokenType.NUM, num);
+                    }
+                    else if (char.IsLetterOrDigit(text[currPos]) && !interpret)
+                    {
+                        string str = findStr();
+                        return new Token(TokenType.STR, str);
                     }
                     else
                     {
-                        // Return exception
-                        break;
+                        return new Token(TokenType.EOF, "EOF");
                     }
             }
-            return new Token(TokenType.EOF, "EOF");
+        }
+
+        public List<Token> Scan(string text)
+        {
+            this.text = text;
+            currPos = 0;
+
+            List<Token> tokens = new List<Token>();
+            while (currPos != text.Length)
+            {
+                Token currToken = NextToken();
+                tokens.Add(currToken);
+                if (currToken.Val == "EOF")
+                {
+                    break;
+                }
+            }
+            return tokens;
         }
 
         private void skipWhitespace()
         {
-            while (char.IsWhiteSpace(text[currPos]))
+            while (currPos < text.Length && char.IsWhiteSpace(text[currPos]))
             {
                 currPos++;
             }
@@ -162,7 +203,7 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         private bool isNextCharEqual(char sign)
         {
-            if (text[currPos + 1] == sign)
+            if (currPos < text.Length - 1 && text[currPos + 1] == sign)
             {
                 return true;
             }
@@ -174,8 +215,27 @@ namespace LogoInterpreter.Interpreter.Lexer
         {
             StringBuilder str = new StringBuilder();
 
-            while (!isNextCharEqual('\''))
+            while (currPos < text.Length && text[currPos] != '\'')
             {
+                str.Append(text[currPos]);
+                currPos++;
+            }
+
+            return str.ToString();
+        }
+
+        private string findNum()
+        {
+            StringBuilder str = new StringBuilder();
+            bool wasDot = false;
+
+            while (currPos < text.Length && (char.IsDigit(text[currPos]) || (text[currPos] == '.' && !wasDot)))
+            {
+                if (text[currPos] == '.')
+                {
+                    wasDot = true;
+                }
+
                 str.Append(text[currPos]);
                 currPos++;
             }
@@ -187,7 +247,7 @@ namespace LogoInterpreter.Interpreter.Lexer
         {
             StringBuilder ident = new StringBuilder();
 
-            while (!char.IsWhiteSpace(text[currPos]))
+            while (currPos < text.Length && char.IsLetterOrDigit(text[currPos]))
             {
                 ident.Append(text[currPos]);
                 currPos++;

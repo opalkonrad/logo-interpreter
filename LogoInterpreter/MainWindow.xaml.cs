@@ -50,10 +50,22 @@ namespace LogoInterpreter
 
         private void Run_Click(object sender, RoutedEventArgs e)
         {
-            Lexer lexer = new Lexer(CodeEditorTextBox.Text);
-            ConsoleTextBox.Text = lexer.NextToken().ToString();
+            int linesOfCode = CodeEditorTextBox.LineCount;
+            Lexer lexer = new Lexer();
 
-            Line line = new Line();
+            for (int i = 0; i < linesOfCode; i++)
+            {
+                string line = CodeEditorTextBox.GetLineText(i).Replace("\r\n", string.Empty);
+                List<Token> tokens = lexer.Scan(line);
+
+                foreach (Token token in tokens)
+                {
+                    ConsoleTextBox.Text += token.ToString();
+                    ConsoleTextBox.Text += "\n";
+                }
+            }
+
+            /*Line line = new Line();
             line.Stroke = System.Windows.Media.Brushes.Black;
 
             line.X1 = 0;
@@ -62,7 +74,7 @@ namespace LogoInterpreter
             line.X2 = 100;
             line.Y2 = 100;
 
-            MainCanvas.Children.Add(line);
+            MainCanvas.Children.Add(line);*/
         }
     }
 }

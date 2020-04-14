@@ -28,7 +28,7 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         public override string ToString()
         {
-            return "Token: " + Type + " " + Val;
+            return "TOKEN Type: " + Type + ", Value: " + Val;
         }
     }
 
@@ -53,6 +53,7 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         [TokenCode(".")] DOT,
         [TokenCode(",")] COMMA,
+        [TokenCode(";")] SEMICOLON,
         [TokenCode("'")] QUOTATION,
 
         [TokenCode("=")] EQUAL,
@@ -74,7 +75,7 @@ namespace LogoInterpreter.Interpreter.Lexer
         [TokenCode("ERR")] ERR
     }
 
-    //[AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
     public class TokenCodeAttribute : Attribute
     {
         private readonly string tokenCode;
