@@ -35,41 +35,33 @@ namespace LogoInterpreter.Interpreter.Lexer
     enum TokenType
     {
         [TokenCode("IDENTIFIER")] IDENTIFIER,
-        [TokenCode("NUM")] NUM,
-        [TokenCode("STR")] STR,
-        
+        [TokenCode("TYPE")] TYPE,
+        [TokenCode("NUMVAL")] NUMVAL,
+        [TokenCode("STRVAL")] STRVAL,
+
         [TokenCode("IF")] IF,
         [TokenCode("ELSE")] ELSE,
         [TokenCode("REPEAT")] REPEAT,
         [TokenCode("FUNC")] FUNC,
+        [TokenCode("NEW")] NEW,
+        [TokenCode("TURTLE")] TURTLE,
+        [TokenCode("INPUT")] INPUT,
+        [TokenCode("PRINT")] PRINT,
 
         [TokenCode("(")] LROUNDBRACKET,
         [TokenCode(")")] RROUNDBRACKET,
         [TokenCode("{")] LSQUAREBRACKET,
         [TokenCode("}")] RSQUAREBRACKET,
 
-        [TokenCode("NEW")] NEW,
-        [TokenCode("TURTLE")] TURTLE,
-
         [TokenCode(".")] DOT,
         [TokenCode(",")] COMMA,
         [TokenCode(";")] SEMICOLON,
         [TokenCode("'")] QUOTATION,
 
-        [TokenCode("=")] EQUAL,
-        [TokenCode("!=")] NOTEQUAL,
-
-        [TokenCode("==")] DOUBLEEQUAL,
-        [TokenCode("<")] LESS,
-        [TokenCode(">")] GREATER,
-        [TokenCode("<=")] LESSEQUAL,
-        [TokenCode(">=")] GREATEREQUAL,
-
-        [TokenCode("+")] PLUS,
-        [TokenCode("-")] MINUS,
-
-        [TokenCode("*")] ASTERISK,
-        [TokenCode("/")] SLASH,
+        [TokenCode("=")] ASSIGNOP,
+        [TokenCode("")] BOOLOP,
+        [TokenCode("")] ADDOP,
+        [TokenCode("")] MULTOP,
 
         [TokenCode("EOF")] EOF,
         [TokenCode("ERR")] ERR

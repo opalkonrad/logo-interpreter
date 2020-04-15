@@ -13,14 +13,16 @@ namespace LogoInterpreter.Interpreter.Lexer
         private bool interpret = true;
         private Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
         {
-            { "num", TokenType.NUM },
-            { "str", TokenType.STR },
+            { "num", TokenType.TYPE },
+            { "str", TokenType.TYPE },
             { "if", TokenType.IF },
             { "else", TokenType.ELSE },
             { "repeat", TokenType.REPEAT },
             { "func", TokenType.FUNC },
             { "new", TokenType.NEW },
-            { "Turtle", TokenType.TURTLE }
+            { "Turtle", TokenType.TURTLE },
+            { "input", TokenType.INPUT },
+            { "print", TokenType.PRINT }
         };
 
         public Lexer()
@@ -50,92 +52,59 @@ namespace LogoInterpreter.Interpreter.Lexer
             switch (text[currPos])
             {
                 case '(':
-                    currPos++;
-                    return new Token(TokenType.LROUNDBRACKET, "(");
+                    return new Token(TokenType.LROUNDBRACKET, text[currPos++].ToString());
 
                 case ')':
-                    currPos++;
-                    return new Token(TokenType.RROUNDBRACKET, ")");
+                    return new Token(TokenType.RROUNDBRACKET, text[currPos++].ToString());
 
                 case '{':
-                    currPos++;
-                    return new Token(TokenType.LSQUAREBRACKET, "{");
+                    return new Token(TokenType.LSQUAREBRACKET, text[currPos++].ToString());
 
                 case '}':
-                    currPos++;
-                    return new Token(TokenType.RSQUAREBRACKET, "}");
+                    return new Token(TokenType.RSQUAREBRACKET, text[currPos++].ToString());
 
                 case '.':
-                    currPos++;
-                    return new Token(TokenType.DOT, ".");
+                    return new Token(TokenType.DOT, text[currPos++].ToString());
 
                 case ',':
-                    currPos++;
-                    return new Token(TokenType.COMMA, ",");
+                    return new Token(TokenType.COMMA, text[currPos++].ToString());
 
                 case ';':
-                    currPos++;
-                    return new Token(TokenType.SEMICOLON, ";");
+                    return new Token(TokenType.SEMICOLON, text[currPos++].ToString());
 
                 case '+':
-                    currPos++;
-                    return new Token(TokenType.PLUS, "+");
-
                 case '-':
-                    currPos++;
-                    return new Token(TokenType.MINUS, "-");
+                    return new Token(TokenType.ADDOP, text[currPos++].ToString());
 
                 case '*':
-                    currPos++;
-                    return new Token(TokenType.ASTERISK, "*");
-
                 case '/':
-                    currPos++;
-                    return new Token(TokenType.SLASH, "/");
+                    return new Token(TokenType.MULTOP, text[currPos++].ToString());
 
                 case '=':
                     if (isNextCharEqual('='))
                     {
-                        currPos += 2;
-                        return new Token(TokenType.DOUBLEEQUAL, "==");
+                        return new Token(TokenType.BOOLOP, text[currPos++].ToString() + text[currPos++].ToString());
                     }
 
-                    currPos++;
-                    return new Token(TokenType.EQUAL, "=");
+                    return new Token(TokenType.ASSIGNOP, text[currPos++].ToString());
 
                 case '!':
-                    if (isNextCharEqual('='))
-                    {
-                        currPos += 2;
-                        return new Token(TokenType.NOTEQUAL, "!=");
-                    }
-
-                    currPos++;
-                    return new Token(TokenType.ERR, "ERR");
-
                 case '<':
-                    if (isNextCharEqual('='))
-                    {
-                        currPos += 2;
-                        return new Token(TokenType.LESSEQUAL, "<=");
-                    }
-
-                    currPos++;
-                    return new Token(TokenType.LESS, "<");
-
                 case '>':
                     if (isNextCharEqual('='))
                     {
-                        currPos += 2;
-                        return new Token(TokenType.GREATEREQUAL, ">=");
+                        return new Token(TokenType.BOOLOP, text[currPos++].ToString() + text[currPos++].ToString());
+                    }
+                    else if (text[currPos] == '!')
+                    {
+                        // Impossible to have only '!'
+                        // throw exception
+                        return new Token(TokenType.ERR, "");
                     }
 
-                    currPos++;
-                    return new Token(TokenType.GREATER, ">");
+                    return new Token(TokenType.BOOLOP, text[currPos++].ToString());
 
                 case '\'':
-                    currPos++;
-
                     if (interpret)
                     {
                         interpret = false;
@@ -145,28 +114,30 @@ namespace LogoInterpreter.Interpreter.Lexer
                         interpret = true;
                     }
                     
-                    return new Token(TokenType.QUOTATION, "\'");
+                    return new Token(TokenType.QUOTATION, text[currPos++].ToString());
 
                 default:
                     if (char.IsLetter(text[currPos]) && interpret)
                     {
                         string ident = findIdentifier();
                         TokenType value;
+
                         if (keywords.TryGetValue(ident, out value))
                         {
                             return new Token(value, ident);
                         }
+
                         return new Token(TokenType.IDENTIFIER, ident);
                     }
                     else if (char.IsDigit(text[currPos]) && interpret)
                     {
                         string num = findNum();
-                        return new Token(TokenType.NUM, num);
+                        return new Token(TokenType.NUMVAL, num);
                     }
                     else if (char.IsLetterOrDigit(text[currPos]) && !interpret)
                     {
                         string str = findStr();
-                        return new Token(TokenType.STR, str);
+                        return new Token(TokenType.STRVAL, str);
                     }
                     else
                     {
@@ -185,6 +156,7 @@ namespace LogoInterpreter.Interpreter.Lexer
             {
                 Token currToken = NextToken();
                 tokens.Add(currToken);
+
                 if (currToken.Val == "EOF")
                 {
                     break;
