@@ -8,224 +8,140 @@ namespace LogoInterpreter.Interpreter.Lexer
 {
     class Lexer
     {
-        private string text;
-        private int currPos;
-        private bool interpret = true;
-        private Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
-        {
-            { "num", TokenType.TYPE },
-            { "str", TokenType.TYPE },
-            { "if", TokenType.IF },
-            { "else", TokenType.ELSE },
-            { "repeat", TokenType.REPEAT },
-            { "func", TokenType.FUNC },
-            { "new", TokenType.NEW },
-            { "Turtle", TokenType.TURTLE },
-            { "input", TokenType.INPUT },
-            { "print", TokenType.PRINT }
-        };
+        public Token Token { get; private set; }
 
-        public Lexer()
-        {
+        private ISource source;
 
+        public Lexer(ISource source)
+        {
+            this.source = source;
+            source.MoveToNextChar();
         }
 
-        public Lexer(string text)
-        {
-            this.text = text;
-        }
-
-        public string Text
-        {
-            set { this.text = value; }
-        }
-
-        public Token NextToken()
+        public void NextToken()
         {
             skipWhitespace();
 
-            if (currPos >= text.Length)
+            if (buildEndOfText())
             {
-                return new Token(TokenType.EOF, "EOF");
+                return;
             }
 
-            switch (text[currPos])
+            /*if (buildIdentifierOrKeyword())
             {
-                case '(':
-                    return new Token(TokenType.LROUNDBRACKET, text[currPos++].ToString());
+                return;
+            }*/
 
-                case ')':
-                    return new Token(TokenType.RROUNDBRACKET, text[currPos++].ToString());
-
-                case '{':
-                    return new Token(TokenType.LSQUAREBRACKET, text[currPos++].ToString());
-
-                case '}':
-                    return new Token(TokenType.RSQUAREBRACKET, text[currPos++].ToString());
-
-                case '.':
-                    return new Token(TokenType.DOT, text[currPos++].ToString());
-
-                case ',':
-                    return new Token(TokenType.COMMA, text[currPos++].ToString());
-
-                case ';':
-                    return new Token(TokenType.SEMICOLON, text[currPos++].ToString());
-
-                case '+':
-                case '-':
-                    return new Token(TokenType.ADDOP, text[currPos++].ToString());
-
-                case '*':
-                case '/':
-                    return new Token(TokenType.MULTOP, text[currPos++].ToString());
-
-                case '=':
-                    if (isNextCharEqual('='))
-                    {
-                        return new Token(TokenType.BOOLOP, text[currPos++].ToString() + text[currPos++].ToString());
-                    }
-
-                    return new Token(TokenType.ASSIGNOP, text[currPos++].ToString());
-
-                case '!':
-                case '<':
-                case '>':
-                    if (isNextCharEqual('='))
-                    {
-                        return new Token(TokenType.BOOLOP, text[currPos++].ToString() + text[currPos++].ToString());
-                    }
-                    else if (text[currPos] == '!')
-                    {
-                        // Impossible to have only '!'
-                        // throw exception
-                        return new Token(TokenType.ERR, "");
-                    }
-
-                    return new Token(TokenType.BOOLOP, text[currPos++].ToString());
-
-                case '\'':
-                    if (interpret)
-                    {
-                        interpret = false;
-                    }
-                    else
-                    {
-                        interpret = true;
-                    }
-                    
-                    return new Token(TokenType.QUOTATION, text[currPos++].ToString());
-
-                default:
-                    if (char.IsLetter(text[currPos]) && interpret)
-                    {
-                        string ident = findIdentifier();
-                        TokenType value;
-
-                        if (keywords.TryGetValue(ident, out value))
-                        {
-                            return new Token(value, ident);
-                        }
-
-                        return new Token(TokenType.IDENTIFIER, ident);
-                    }
-                    else if (char.IsDigit(text[currPos]) && interpret)
-                    {
-                        string num = findNum();
-                        return new Token(TokenType.NUMVAL, num);
-                    }
-                    else if (char.IsLetterOrDigit(text[currPos]) && !interpret)
-                    {
-                        string str = findStr();
-                        return new Token(TokenType.STRVAL, str);
-                    }
-                    else
-                    {
-                        return new Token(TokenType.EOF, "EOF");
-                    }
-            }
-        }
-
-        public List<Token> Scan(string text)
-        {
-            this.text = text;
-            currPos = 0;
-
-            List<Token> tokens = new List<Token>();
-            while (currPos != text.Length)
+            if (buildOperatorOrAssignment())
             {
-                Token currToken = NextToken();
-                tokens.Add(currToken);
-
-                if (currToken.Val == "EOF")
-                {
-                    break;
-                }
+                return;
             }
-            return tokens;
         }
 
         private void skipWhitespace()
         {
-            while (currPos < text.Length && char.IsWhiteSpace(text[currPos]))
+            while (char.IsWhiteSpace(source.CurrChar))
             {
-                currPos++;
+                source.MoveToNextChar();
             }
         }
 
-        private bool isNextCharEqual(char sign)
+        private bool buildEndOfText()
         {
-            if (currPos < text.Length - 1 && text[currPos + 1] == sign)
+            if (source.CurrChar == (char)3)
             {
+                Token = new EndOfTextToken(new Position(source.Position), "EOT");
                 return true;
             }
 
             return false;
         }
 
-        private string findStr()
+        private bool buildIdentifierOrKeyword()
         {
-            StringBuilder str = new StringBuilder();
-
-            while (currPos < text.Length && text[currPos] != '\'')
-            {
-                str.Append(text[currPos]);
-                currPos++;
-            }
-
-            return str.ToString();
+            return true;
         }
 
-        private string findNum()
+        private bool buildOperatorOrAssignment()
         {
-            StringBuilder str = new StringBuilder();
-            bool wasDot = false;
-
-            while (currPos < text.Length && (char.IsDigit(text[currPos]) || (text[currPos] == '.' && !wasDot)))
+            // Only one-character tokens
+            if (new[] { '+', '-', '*', '/' }.Contains(source.CurrChar))
             {
-                if (text[currPos] == '.')
+                switch(source.CurrChar)
                 {
-                    wasDot = true;
+                    case '+':
+                        Token = new PlusToken(new Position(source.Position), "+");
+                        break;
+
+                    case '-':
+                        Token = new MinusToken(new Position(source.Position), "-");
+                        break;
+
+                    case '*':
+                        Token = new AsteriskToken(new Position(source.Position), "*");
+                        break;
+
+                    case '/':
+                        Token = new SlashToken(new Position(source.Position), "/");
+                        break;
                 }
 
-                str.Append(text[currPos]);
-                currPos++;
+                source.MoveToNextChar();
+                return true;
             }
 
-            return str.ToString();
-        }
-
-        private string findIdentifier()
-        {
-            StringBuilder ident = new StringBuilder();
-
-            while (currPos < text.Length && char.IsLetterOrDigit(text[currPos]))
+            // One/two-character tokens
+            if (new[] { '<', '>', '=' }.Contains(source.CurrChar))
             {
-                ident.Append(text[currPos]);
-                currPos++;
+                // Remeber beginning of string
+                Position beginPosition = new Position(source.Position);
+                char beginChar = source.CurrChar;
+                
+                source.MoveToNextChar();
+
+                // Check if the next character is '=' - two-character token
+                if (source.CurrChar == '=')
+                {
+                    switch (beginChar)
+                    {
+                        case '<':
+                            Token = new LessEqualThanToken(new Position(beginPosition), "<=");
+                            break;
+
+                        case '>':
+                            Token = new GreaterEqualThanToken(new Position(beginPosition), ">=");
+                            break;
+
+                        case '=':
+                            Token = new EqualToken(new Position(beginPosition), "==");
+                            break;
+                    }
+
+                    // Go to next character
+                    source.MoveToNextChar();
+                }
+                else
+                {
+                    switch (beginChar)
+                    {
+                        case '<':
+                            Token = new LessThanToken(new Position(beginPosition), "<");
+                            break;
+
+                        case '>':
+                            Token = new GreaterThanToken(new Position(beginPosition), ">");
+                            break;
+
+                        case '=':
+                            Token = new AssignmentToken(new Position(beginPosition), "=");
+                            break;
+                    }
+                }
+
+                return true;
             }
 
-            return ident.ToString();
+            return false;
         }
     }
 }

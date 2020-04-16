@@ -50,19 +50,17 @@ namespace LogoInterpreter
 
         private void Run_Click(object sender, RoutedEventArgs e)
         {
-            int linesOfCode = CodeEditorTextBox.LineCount;
-            Lexer lexer = new Lexer();
+            /*Token token = new Number();
+            ConsoleTextBox.Text = (token as Number).Val.ToString();
+*/
 
-            for (int i = 0; i < linesOfCode; i++)
+            Lexer lexer = new Lexer(new StringSource(CodeEditorTextBox.Text));
+
+            while (!(lexer.Token is EndOfTextToken))
             {
-                string line = CodeEditorTextBox.GetLineText(i).Replace("\r\n", string.Empty);
-                List<Token> tokens = lexer.Scan(line);
-
-                foreach (Token token in tokens)
-                {
-                    ConsoleTextBox.Text += token.ToString();
-                    ConsoleTextBox.Text += "\n";
-                }
+                lexer.NextToken();
+                ConsoleTextBox.Text += lexer.Token.ToString();
+                ConsoleTextBox.Text += "\n";
             }
 
             /*Line line = new Line();
