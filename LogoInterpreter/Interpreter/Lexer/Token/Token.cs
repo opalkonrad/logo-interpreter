@@ -7,17 +7,15 @@ namespace LogoInterpreter.Interpreter.Lexer
     class Token
     {
         public Position Position { get; }
-        public string Text { get; }
 
-        public Token(Position position, string text)
+        public Token(Position position)
         {
             Position = position;
-            Text = text;
         }
 
         public override string ToString()
         {
-            return "TOKEN: Type: " + Text + ", " + Position;
+            return "TOKEN: Type: " + this.GetType().Name + ", " + Position;
         }
     }
 }

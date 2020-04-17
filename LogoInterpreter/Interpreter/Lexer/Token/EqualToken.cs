@@ -6,7 +6,17 @@ namespace LogoInterpreter.Interpreter.Lexer
 {
     class EqualToken : Token
     {
-        public EqualToken(Position position, string text)
-            : base(position, text) { }
+        public static string Text = "==";
+
+        public EqualToken(Position position)
+            : base(position)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + ", Text: " + Text;
+        }
     }
 }

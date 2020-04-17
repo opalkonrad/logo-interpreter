@@ -4,11 +4,11 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class NumToken : Token
+    class TurtleToken : Token
     {
-        public static string Text = "num";
+        public static string Text = "Turtle";
 
-        public NumToken(Position position)
+        public TurtleToken(Position position)
             : base(position)
         {
 

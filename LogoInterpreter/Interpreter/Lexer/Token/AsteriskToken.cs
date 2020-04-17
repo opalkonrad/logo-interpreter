@@ -6,7 +6,17 @@ namespace LogoInterpreter.Interpreter.Lexer
 {
     class AsteriskToken : Token
     {
-        public AsteriskToken(Position position, string text)
-            : base(position, text) { }
+        public static string Text = "*";
+
+        public AsteriskToken(Position position)
+            : base(position)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + ", Text: " + Text;
+        }
     }
 }

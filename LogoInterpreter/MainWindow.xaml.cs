@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Win32;
 using LogoInterpreter.Interpreter.Lexer;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace LogoInterpreter
 {
@@ -50,18 +51,22 @@ namespace LogoInterpreter
 
         private void Run_Click(object sender, RoutedEventArgs e)
         {
-            /*Token token = new Number();
-            ConsoleTextBox.Text = (token as Number).Val.ToString();
-*/
-
             Lexer lexer = new Lexer(new StringSource(CodeEditorTextBox.Text));
 
-            while (!(lexer.Token is EndOfTextToken))
+            try
             {
-                lexer.NextToken();
-                ConsoleTextBox.Text += lexer.Token.ToString();
-                ConsoleTextBox.Text += "\n";
+                while (!(lexer.Token is EndOfTextToken))
+                {
+                    lexer.NextToken();
+                    ConsoleTextBox.Text += lexer.Token.ToString();
+                    ConsoleTextBox.Text += "\n";
+                }
             }
+            catch(LexerException ex)
+            {
+                ConsoleTextBox.Text += ex.Message;
+            }
+            
 
             /*Line line = new Line();
             line.Stroke = System.Windows.Media.Brushes.Black;
@@ -73,6 +78,7 @@ namespace LogoInterpreter
             line.Y2 = 100;
 
             MainCanvas.Children.Add(line);*/
+
         }
     }
 }

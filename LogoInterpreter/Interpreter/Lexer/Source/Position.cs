@@ -38,7 +38,7 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         public override string ToString()
         {
-            return "Position: col = " + Column + ", ln = " + Line + ", ch: " + Char;
+            return "Position: col = " + Column + ", ln = " + Line + ", ch = " + Char;
         }
     }
 }

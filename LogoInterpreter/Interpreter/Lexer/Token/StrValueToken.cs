@@ -4,19 +4,19 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class NumToken : Token
+    class StrValueToken : Token
     {
-        public static string Text = "num";
+        public string Value { get; }
 
-        public NumToken(Position position)
+        public StrValueToken(Position position, string value)
             : base(position)
         {
-
+            Value = value;
         }
 
         public override string ToString()
         {
-            return base.ToString() + ", Text: " + Text;
+            return base.ToString() + ", Value: " + Value;
         }
     }
 }

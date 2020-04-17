@@ -6,7 +6,17 @@ namespace LogoInterpreter.Interpreter.Lexer
 {
     class GreaterEqualThanToken : Token
     {
-        public GreaterEqualThanToken(Position position, string text)
-            : base(position, text) { }
+        public static string Text = ">=";
+
+        public GreaterEqualThanToken(Position position)
+            : base(position)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + ", Text: " + Text;
+        }
     }
 }

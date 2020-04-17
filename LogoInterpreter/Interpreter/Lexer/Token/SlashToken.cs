@@ -6,7 +6,17 @@ namespace LogoInterpreter.Interpreter.Lexer
 {
     class SlashToken : Token
     {
-        public SlashToken(Position position, string text)
-            : base(position, text) { }
+        public static string Text = "/";
+
+        public SlashToken(Position position)
+            : base(position)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + ", Text: " + Text;
+        }
     }
 }

@@ -6,7 +6,17 @@ namespace LogoInterpreter.Interpreter.Lexer
 {
     class LRoundBracketToken : Token
     {
-        public LRoundBracketToken(Position position, string text)
-            : base(position, text) { }
+        public static string Text = "(";
+
+        public LRoundBracketToken(Position position)
+            : base(position)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + ", Text: " + Text;
+        }
     }
 }

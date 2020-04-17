@@ -6,12 +6,17 @@ namespace LogoInterpreter.Interpreter.Lexer
 {
     class StrToken : Token
     {
-        public double Value { get; }
+        public static string Text = "str";
 
-        public StrToken(Position position, string text, double value)
-            : base(position, text)
+        public StrToken(Position position)
+            : base(position)
         {
-            Value = value;
+
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + ", Text: " + Text;
         }
     }
 }
