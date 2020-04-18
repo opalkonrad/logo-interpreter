@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogoInterpreter", "LogoInterpreter\LogoInterpreter.csproj", "{6E7DC417-8743-4CDE-AB69-A5210D0FDDF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogoInterpreter", "LogoInterpreter\LogoInterpreter.csproj", "{6E7DC417-8743-4CDE-AB69-A5210D0FDDF9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogoInterpreter.Tests", "LogoInterpreter.Tests\LogoInterpreter.Tests.csproj", "{3229562F-668F-4193-8D85-9386DFAF8885}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6E7DC417-8743-4CDE-AB69-A5210D0FDDF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E7DC417-8743-4CDE-AB69-A5210D0FDDF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E7DC417-8743-4CDE-AB69-A5210D0FDDF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3229562F-668F-4193-8D85-9386DFAF8885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3229562F-668F-4193-8D85-9386DFAF8885}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3229562F-668F-4193-8D85-9386DFAF8885}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3229562F-668F-4193-8D85-9386DFAF8885}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

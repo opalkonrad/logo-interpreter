@@ -12,7 +12,7 @@ namespace LogoInterpreter.Interpreter.Lexer
         }
 
         public LexerException(string msg)
-            : base(msg)
+            : base("# Exception (Lexer): " + msg)
         {
             
         }
