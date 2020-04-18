@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class ElseToken : Token
+    public class ElseToken : Token
     {
         public static string Text = "else";
 

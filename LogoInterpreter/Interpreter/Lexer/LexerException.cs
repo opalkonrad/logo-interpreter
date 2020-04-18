@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class LexerException : Exception
+    public class LexerException : Exception
     {
         public LexerException()
         {

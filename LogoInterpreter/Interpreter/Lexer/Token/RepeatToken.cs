@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class RepeatToken : Token
+    public class RepeatToken : Token
     {
         public static string Text = "repeat";
 

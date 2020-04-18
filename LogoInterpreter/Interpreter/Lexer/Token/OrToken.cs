@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class OrToken : Token
+    public class OrToken : Token
     {
         public static string Text = "|";
 

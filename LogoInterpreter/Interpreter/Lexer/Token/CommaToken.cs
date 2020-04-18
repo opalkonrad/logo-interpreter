@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class CommaToken : Token
+    public class CommaToken : Token
     {
         public static string Text = ",";
 

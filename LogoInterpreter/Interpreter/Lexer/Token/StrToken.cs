@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class StrToken : Token
+    public class StrToken : Token
     {
         public static string Text = "str";
 

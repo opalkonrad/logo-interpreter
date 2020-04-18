@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class AsteriskToken : Token
+    public class AsteriskToken : Token
     {
         public static string Text = "*";
 

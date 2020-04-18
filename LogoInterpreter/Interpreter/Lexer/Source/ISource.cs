@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    interface ISource
+    public interface ISource
     {
         Position Position { get; }
         char CurrChar { get; }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class SlashToken : Token
+    public class SlashToken : Token
     {
         public static string Text = "/";
 

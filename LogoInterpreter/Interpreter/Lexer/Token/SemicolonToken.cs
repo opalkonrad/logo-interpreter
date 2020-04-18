@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class SemicolonToken : Token
+    public class SemicolonToken : Token
     {
         public static string Text = ";";
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class TurtleToken : Token
+    public class TurtleToken : Token
     {
         public static string Text = "Turtle";
 

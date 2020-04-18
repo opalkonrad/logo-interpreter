@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class FuncToken : Token
+    public class FuncToken : Token
     {
         public static string Text = "func";
 

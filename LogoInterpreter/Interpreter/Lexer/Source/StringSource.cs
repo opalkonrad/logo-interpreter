@@ -7,7 +7,7 @@ using System.Windows.Shapes;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class StringSource : ISource
+    public class StringSource : ISource
     {
         public Position Position { get; private set; } = new Position();
         public char CurrChar { get; private set; }

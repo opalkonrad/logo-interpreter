@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter.Lexer
 {
-    class Position
+    public class Position
     {
         public int Column { get; set; }
         public int Line { get; set; }
@@ -15,6 +15,13 @@ namespace LogoInterpreter.Interpreter.Lexer
             Column = 0;
             Line = 1;
             Char = 0;
+        }
+
+        public Position(int col, int ln, int ch)
+        {
+            Column = col;
+            Line = ln;
+            Char = ch;
         }
 
         public Position(Position otherPosition)
