@@ -389,6 +389,21 @@ namespace LogoInterpreter.Tests
         }
 
         [TestMethod]
+        public void NextToken_NoClosingBracketInStrValueString_ThrowLexerException()
+        {
+            var lexer = new Lexer(new StringSource("\""));
+            try
+            {
+                lexer.NextToken();
+                Assert.Fail();
+            }
+            catch
+            {
+
+            }
+        }
+
+        [TestMethod]
         public void NextToken_TurtleKeyword_SetTokenToTurtleToken()
         {
             var lexer = new Lexer(new StringSource("Turtle"));

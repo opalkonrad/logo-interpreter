@@ -198,6 +198,12 @@ namespace LogoInterpreter.Interpreter.Lexer
                 {
                     strVal.Append(source.CurrChar);
                     source.MoveToNextChar();
+
+                    // No closing quote
+                    if (source.CurrChar == (char)3)
+                    {
+                        throw new LexerException("No closing bracket for str value in " + beginPosition.ToString());
+                    }
                 }
 
                 // Skip quotation mark
