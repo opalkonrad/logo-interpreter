@@ -62,7 +62,7 @@ namespace LogoInterpreter
                     ConsoleTextBox.Text += "\n";
                 }
             }
-            catch(LexerException ex)
+            catch (LexerException ex)
             {
                 ConsoleTextBox.Text += ex.Message;
             }

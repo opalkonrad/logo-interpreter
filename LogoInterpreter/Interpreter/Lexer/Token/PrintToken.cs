@@ -6,7 +6,7 @@ namespace LogoInterpreter.Interpreter.Lexer
 {
     public class PrintToken : Token
     {
-        public static string Text = "input";
+        public static string Text = "print";
 
         public PrintToken(Position position)
             : base(position)

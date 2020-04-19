@@ -1,0 +1,18 @@
+func runForestRun(Turtle turtle, num amount)
+{
+	if (amount < 10)
+	{
+		repeat 5
+		{
+			turtle.Fd(amount);
+		}
+	}
+	else
+	{
+		turtle.Fd(amount);
+	}
+}
+
+Turtle zenek = new Turtle;
+runForestRun(zenek, 10);
+print("Done");

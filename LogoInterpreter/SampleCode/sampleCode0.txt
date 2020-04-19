@@ -1,0 +1,9 @@
+Turtle zenek = new Turtle;
+Turtle reksio = new Turtle;
+
+zenek.Color = Red;
+reksio.Color = Green;
+
+zenek.Fd(50);
+reksio.Rt(90);
+reksio.Fd(50);
