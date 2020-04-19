@@ -231,7 +231,26 @@ namespace LogoInterpreter.Tests
         }
 
         [TestMethod]
+        [DataRow("0", 0)]
+        [DataRow("0.0", 0)]
+        [DataRow("1.0", 1)]
+        [DataRow("1.001", 1.001)]
+        [DataRow("1.100", 1.1)]
+        public void NextToken_NumValueString_SetProperValueOfToken(string text, double expected)
+        {
+            var lexer = new Lexer(new StringSource(text));
+            lexer.NextToken();
+            Assert.AreEqual((lexer.Token as NumValueToken).Value, expected);
+        }
+
+        [TestMethod]
         [DataRow("0.")]
+        [DataRow("0a")]
+        [DataRow("0.0a")]
+        [DataRow("0.00a")]
+        [DataRow("00.1")]
+        [DataRow("00.a")]
+        [DataRow("00.")]
         [DataRow("01.")]
         [DataRow("01.0")]
         [DataRow("0a.")]
@@ -347,12 +366,26 @@ namespace LogoInterpreter.Tests
         [DataRow("\"a b\"")]
         [DataRow("\"0 b\"")]
         [DataRow("\"a 0\"")]
-        [DataRow("\"#9 0/.=)\"")]
+        [DataRow("\"#9 0/.=) if\"")]
         public void NextToken_StrValueString_SetTokenToStrValueToken(string text)
         {
             var lexer = new Lexer(new StringSource(text));
             lexer.NextToken();
             Assert.IsInstanceOfType(lexer.Token, typeof(StrValueToken));
+        }
+
+        [TestMethod]
+        [DataRow("\"0\"", "0")]
+        [DataRow("\"a\"", "a")]
+        [DataRow("\"a b\"", "a b")]
+        [DataRow("\"0 b\"", "0 b")]
+        [DataRow("\"a 0\"", "a 0")]
+        [DataRow("\"#9 0/.=) if\"", "#9 0/.=) if")]
+        public void NextToken_StrValueString_SetProperValueOfToken(string text, string expected)
+        {
+            var lexer = new Lexer(new StringSource(text));
+            lexer.NextToken();
+            Assert.AreEqual((lexer.Token as StrValueToken).Value, expected);
         }
 
         [TestMethod]
