@@ -66,7 +66,7 @@ namespace LogoInterpreter
             {
                 ConsoleTextBox.Text += ex.Message;
             }
-            
+
 
             /*Line line = new Line();
             line.Stroke = System.Windows.Media.Brushes.Black;

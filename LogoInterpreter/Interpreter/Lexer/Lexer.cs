@@ -12,6 +12,7 @@ namespace LogoInterpreter.Interpreter.Lexer
         public Token Token { get; private set; }
 
         private readonly ISource source;
+        private Position beginPosition;
         private static readonly char[] chars = new char[]
         {
             'A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'e', 'F', 'f', 'G', 'g', 'H', 'h',
@@ -30,6 +31,9 @@ namespace LogoInterpreter.Interpreter.Lexer
         {
             // Skip whitespace
             skipWhitespace();
+
+            // Begin position of token
+            beginPosition = new Position(source.Position);
 
             // Try to build token
             if (buildEndOfText())
@@ -82,7 +86,7 @@ namespace LogoInterpreter.Interpreter.Lexer
         {
             if (source.CurrChar == (char)3)
             {
-                Token = new EndOfTextToken(new Position(source.Position));
+                Token = new EndOfTextToken(beginPosition);
                 return true;
             }
 
@@ -91,29 +95,27 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         private bool buildBracket()
         {
-            if (new[] { '{', '}', '(', ')' }.Contains(source.CurrChar))
+            switch (source.CurrChar)
             {
-                switch (source.CurrChar)
-                {
-                    case '{':
-                        Token = new LSquareBracketToken(new Position(source.Position));
-                        break;
+                case '{':
+                    Token = new LSquareBracketToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
 
-                    case '}':
-                        Token = new RSquareBracketToken(new Position(source.Position));
-                        break;
+                case '}':
+                    Token = new RSquareBracketToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
 
-                    case '(':
-                        Token = new LRoundBracketToken(new Position(source.Position));
-                        break;
+                case '(':
+                    Token = new LRoundBracketToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
 
-                    case ')':
-                        Token = new RRoundBracketToken(new Position(source.Position));
-                        break;
-                }
-
-                source.MoveToNextChar();
-                return true;
+                case ')':
+                    Token = new RRoundBracketToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
             }
 
             return false;
@@ -121,25 +123,22 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         private bool buildDotCommaSemicolon()
         {
-            if (new[] { '.', ',', ';' }.Contains(source.CurrChar))
+            switch (source.CurrChar)
             {
-                switch (source.CurrChar)
-                {
-                    case '.':
-                        Token = new DotToken(new Position(source.Position));
-                        break;
+                case '.':
+                    Token = new DotToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
 
-                    case ',':
-                        Token = new CommaToken(new Position(source.Position));
-                        break;
+                case ',':
+                    Token = new CommaToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
 
-                    case ';':
-                        Token = new SemicolonToken(new Position(source.Position));
-                        break;
-                }
-
-                source.MoveToNextChar();
-                return true;
+                case ';':
+                    Token = new SemicolonToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
             }
 
             return false;
@@ -147,12 +146,11 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         private bool buildIdentifierOrKeyword()
         {
-            if (chars.Contains(source.CurrChar))
+            if (char.IsLetter(source.CurrChar))
             {
-                Position beginPosition = new Position(source.Position);
                 StringBuilder strVal = new StringBuilder();
 
-                while (chars.Contains(source.CurrChar) || char.IsDigit(source.CurrChar))
+                while (char.IsLetterOrDigit(source.CurrChar))
                 {
                     strVal.Append(source.CurrChar);
                     source.MoveToNextChar();
@@ -161,21 +159,21 @@ namespace LogoInterpreter.Interpreter.Lexer
                 // Check if exists in keywords, otherwise create new identifier
                 Token = (strVal.ToString()) switch
                 {
-                    "if" => new IfToken(new Position(beginPosition)),
-                    "else" => new ElseToken(new Position(beginPosition)),
-                    "repeat" => new RepeatToken(new Position(beginPosition)),
-                    "num" => new NumToken(new Position(beginPosition)),
-                    "str" => new StrToken(new Position(beginPosition)),
-                    "func" => new FuncToken(new Position(beginPosition)),
-                    "return" => new ReturnToken(new Position(beginPosition)),
-                    "new" => new NewToken(new Position(beginPosition)),
-                    "Turtle" => new TurtleToken(new Position(beginPosition)),
-                    "input" => new InputToken(new Position(beginPosition)),
-                    "print" => new PrintToken(new Position(beginPosition)),
-                    "Red" => new RedToken(new Position(beginPosition)),
-                    "Green" => new GreenToken(new Position(beginPosition)),
-                    "Blue" => new BlueToken(new Position(beginPosition)),
-                    _ => new IdentifierToken(new Position(beginPosition), strVal.ToString()),
+                    "if" => new IfToken(beginPosition),
+                    "else" => new ElseToken(beginPosition),
+                    "repeat" => new RepeatToken(beginPosition),
+                    "num" => new NumToken(beginPosition),
+                    "str" => new StrToken(beginPosition),
+                    "func" => new FuncToken(beginPosition),
+                    "return" => new ReturnToken(beginPosition),
+                    "new" => new NewToken(beginPosition),
+                    "Turtle" => new TurtleToken(beginPosition),
+                    "input" => new InputToken(beginPosition),
+                    "print" => new PrintToken(beginPosition),
+                    "Red" => new RedToken(beginPosition),
+                    "Green" => new GreenToken(beginPosition),
+                    "Blue" => new BlueToken(beginPosition),
+                    _ => new IdentifierToken(beginPosition, strVal.ToString()),
                 };
 
                 return true;
@@ -188,7 +186,6 @@ namespace LogoInterpreter.Interpreter.Lexer
         {
             if (source.CurrChar == '\"')
             {
-                Position beginPosition = new Position(source.Position);
                 StringBuilder strVal = new StringBuilder();
 
                 // Skip quotation mark
@@ -196,14 +193,14 @@ namespace LogoInterpreter.Interpreter.Lexer
 
                 while (source.CurrChar != '\"')
                 {
-                    strVal.Append(source.CurrChar);
-                    source.MoveToNextChar();
-
                     // No closing quote
                     if (source.CurrChar == (char)3)
                     {
                         throw new LexerException("No closing bracket for str value in " + beginPosition.ToString());
                     }
+
+                    strVal.Append(source.CurrChar);
+                    source.MoveToNextChar();
                 }
 
                 // Skip quotation mark
@@ -212,11 +209,11 @@ namespace LogoInterpreter.Interpreter.Lexer
                 // Check for empty string
                 if (strVal.Length != 0)
                 {
-                    Token = new StrValueToken(new Position(beginPosition), strVal.ToString());
+                    Token = new StrValueToken(beginPosition, strVal.ToString());
                 }
                 else
                 {
-                    Token = new StrValueToken(new Position(beginPosition), string.Empty);
+                    Token = new StrValueToken(beginPosition, string.Empty);
                 }
                 
                 return true;
@@ -229,7 +226,6 @@ namespace LogoInterpreter.Interpreter.Lexer
         {
             if (char.IsDigit(source.CurrChar))
             {
-                Position beginPosition = new Position(source.Position);
                 StringBuilder strVal = new StringBuilder();
 
                 if (source.CurrChar == '0')
@@ -238,7 +234,7 @@ namespace LogoInterpreter.Interpreter.Lexer
                     source.MoveToNextChar();
 
                     // After leading zero should be dot or nothing
-                    if (char.IsDigit(source.CurrChar) || chars.Contains(source.CurrChar))
+                    if (char.IsLetterOrDigit(source.CurrChar))
                     {
                         throw new LexerException("Wrong format of num value in " + beginPosition.ToString());
                     }
@@ -261,28 +257,33 @@ namespace LogoInterpreter.Interpreter.Lexer
                     source.MoveToNextChar();
 
                     // At least one digit after dot
-                    bool wasDigit = false;
+                    if (!char.IsDigit(source.CurrChar))
+                    {
+                        throw new LexerException("Wrong format of num value in " + beginPosition.ToString());
+                    }
 
                     while (char.IsDigit(source.CurrChar))
                     {
                         strVal.Append(source.CurrChar);
                         source.MoveToNextChar();
-                        wasDigit = true;
-                    }
-                    
-                    if (!wasDigit)
-                    {
-                        throw new LexerException("Wrong format of num value in " + beginPosition.ToString());
                     }
                 }
 
                 // Character after digit or dot is impossible
-                if (chars.Contains(source.CurrChar))
+                if (char.IsLetter(source.CurrChar))
                 {
                     throw new LexerException("Wrong format of num value in " + beginPosition.ToString());
                 }
 
-                Token = new NumValueToken(new Position(beginPosition), Convert.ToDouble(strVal.ToString()));
+                try
+                {
+                    Token = new NumValueToken(beginPosition, Convert.ToDouble(strVal.ToString()));
+                }
+                catch (OverflowException)
+                {
+                    throw new LexerException("Wrong format of num value in " + beginPosition.ToString());
+                }
+
                 return true;
             }
 
@@ -292,89 +293,81 @@ namespace LogoInterpreter.Interpreter.Lexer
         private bool buildOperatorOrAssignment()
         {
             // Only one-character tokens
-            if (new[] { '+', '-', '*', '/', '&', '|' }.Contains(source.CurrChar))
+            switch (source.CurrChar)
             {
-                switch (source.CurrChar)
-                {
-                    case '+':
-                        Token = new PlusToken(new Position(source.Position));
-                        break;
-
-                    case '-':
-                        Token = new MinusToken(new Position(source.Position));
-                        break;
-
-                    case '*':
-                        Token = new AsteriskToken(new Position(source.Position));
-                        break;
-
-                    case '/':
-                        Token = new SlashToken(new Position(source.Position));
-                        break;
-
-                    case '&':
-                        Token = new AndToken(new Position(source.Position));
-                        break;
-
-                    case '|':
-                        Token = new OrToken(new Position(source.Position));
-                        break;
-                }
-
-                source.MoveToNextChar();
-                return true;
-            }
-
-            // One/two-character tokens
-            if (new[] { '<', '>', '=' }.Contains(source.CurrChar))
-            {
-                // Remeber beginning of string
-                Position beginPosition = new Position(source.Position);
-                char beginChar = source.CurrChar;
-                
-                source.MoveToNextChar();
-
-                // Check if the next character is '=' - two-character token
-                if (source.CurrChar == '=')
-                {
-                    switch (beginChar)
-                    {
-                        case '<':
-                            Token = new LessEqualThanToken(new Position(beginPosition));
-                            break;
-
-                        case '>':
-                            Token = new GreaterEqualThanToken(new Position(beginPosition));
-                            break;
-
-                        case '=':
-                            Token = new EqualToken(new Position(beginPosition));
-                            break;
-                    }
-
-                    // Go to next character
+                case '+':
                     source.MoveToNextChar();
-                }
-                else
-                {
-                    // One-character tokens
-                    switch (beginChar)
+                    Token = new PlusToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
+
+                case '-':
+                    Token = new MinusToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
+
+                case '*':
+                    Token = new AsteriskToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
+
+                case '/':
+                    Token = new SlashToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
+
+                case '&':
+                    Token = new AndToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
+
+                case '|':
+                    Token = new OrToken(beginPosition);
+                    source.MoveToNextChar();
+                    return true;
+
+                case '<':
+                    source.MoveToNextChar();
+
+                    if (source.CurrChar == '=')
                     {
-                        case '<':
-                            Token = new LessThanToken(new Position(beginPosition));
-                            break;
-
-                        case '>':
-                            Token = new GreaterThanToken(new Position(beginPosition));
-                            break;
-
-                        case '=':
-                            Token = new AssignmentToken(new Position(beginPosition));
-                            break;
+                        Token = new LessEqualThanToken(beginPosition);
+                        source.MoveToNextChar();
                     }
-                }
+                    else
+                    {
+                        Token = new LessThanToken(beginPosition);
+                    }
+                    return true;
 
-                return true;
+                case '>':
+                    source.MoveToNextChar();
+
+                    if (source.CurrChar == '=')
+                    {
+                        Token = new GreaterEqualThanToken(beginPosition);
+                        source.MoveToNextChar();
+                    }
+                    else
+                    {
+                        Token = new GreaterThanToken(beginPosition);
+                    }
+                    return true;
+
+                case '=':
+                    source.MoveToNextChar();
+
+                    if (source.CurrChar == '=')
+                    {
+                        Token = new EqualToken(beginPosition);
+                        source.MoveToNextChar();
+                    }
+                    else
+                    {
+                        Token = new AssignmentToken(beginPosition);
+                    }
+                    
+                    return true;
             }
 
             return false;
