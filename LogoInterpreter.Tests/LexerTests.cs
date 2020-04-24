@@ -375,6 +375,7 @@ namespace LogoInterpreter.Tests
         }
 
         [TestMethod]
+        [DataRow("\"\"", "")]
         [DataRow("\"0\"", "0")]
         [DataRow("\"a\"", "a")]
         [DataRow("\"a b\"", "a b")]

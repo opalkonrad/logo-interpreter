@@ -13,13 +13,6 @@ namespace LogoInterpreter.Interpreter.Lexer
 
         private readonly ISource source;
         private Position beginPosition;
-        private static readonly char[] chars = new char[]
-        {
-            'A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'e', 'F', 'f', 'G', 'g', 'H', 'h',
-            'I', 'i', 'J', 'j', 'K', 'k', 'L', 'l', 'M', 'm', 'N', 'n', 'O', 'o', 'P', 'p',
-            'Q', 'q', 'R', 'r', 'S', 's', 'T', 't', 'U', 'u', 'V', 'v', 'W', 'w', 'X', 'x',
-            'Y', 'y', 'Z', 'z'
-        };
 
         public Lexer(ISource source)
         {
@@ -206,15 +199,7 @@ namespace LogoInterpreter.Interpreter.Lexer
                 // Skip quotation mark
                 source.MoveToNextChar();
 
-                // Check for empty string
-                if (strVal.Length != 0)
-                {
-                    Token = new StrValueToken(beginPosition, strVal.ToString());
-                }
-                else
-                {
-                    Token = new StrValueToken(beginPosition, string.Empty);
-                }
+                Token = new StrValueToken(beginPosition, strVal.ToString());
                 
                 return true;
             }
@@ -275,14 +260,8 @@ namespace LogoInterpreter.Interpreter.Lexer
                     throw new LexerException("Wrong format of num value in " + beginPosition.ToString());
                 }
 
-                try
-                {
-                    Token = new NumValueToken(beginPosition, Convert.ToDouble(strVal.ToString()));
-                }
-                catch (OverflowException)
-                {
-                    throw new LexerException("Wrong format of num value in " + beginPosition.ToString());
-                }
+
+                Token = new NumValueToken(beginPosition, Convert.ToDouble(strVal.ToString()));
 
                 return true;
             }
@@ -296,7 +275,6 @@ namespace LogoInterpreter.Interpreter.Lexer
             switch (source.CurrChar)
             {
                 case '+':
-                    source.MoveToNextChar();
                     Token = new PlusToken(beginPosition);
                     source.MoveToNextChar();
                     return true;
