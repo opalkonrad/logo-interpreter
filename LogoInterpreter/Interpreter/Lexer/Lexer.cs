@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace LogoInterpreter.Interpreter.Lexer
+namespace LogoInterpreter.Interpreter
 {
     public class Lexer
     {
@@ -259,7 +259,6 @@ namespace LogoInterpreter.Interpreter.Lexer
                 {
                     throw new LexerException("Wrong format of num value in " + beginPosition.ToString());
                 }
-
 
                 Token = new NumValueToken(beginPosition, Convert.ToDouble(strVal.ToString()));
 

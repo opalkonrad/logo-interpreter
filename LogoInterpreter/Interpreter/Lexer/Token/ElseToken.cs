@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LogoInterpreter.Interpreter.Lexer
+namespace LogoInterpreter.Interpreter
 {
     public class ElseToken : Token
     {

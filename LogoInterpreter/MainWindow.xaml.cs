@@ -14,8 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Win32;
-using LogoInterpreter.Interpreter.Lexer;
 using Microsoft.VisualBasic.CompilerServices;
+using LogoInterpreter.Interpreter;
 
 namespace LogoInterpreter
 {

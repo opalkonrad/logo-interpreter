@@ -1,4 +1,4 @@
-using LogoInterpreter.Interpreter.Lexer;
+using LogoInterpreter.Interpreter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace LogoInterpreter.Tests
