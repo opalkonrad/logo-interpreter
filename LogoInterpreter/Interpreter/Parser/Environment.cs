@@ -10,6 +10,7 @@ namespace LogoInterpreter.Interpreter
         public Dictionary<string, double?> Nums { get; private set; } = new Dictionary<string, double?>();
         public Dictionary<string, string> Strs { get; private set; } = new Dictionary<string, string>();
         public Dictionary<string, Turtle> Turtles { get; private set; } = new Dictionary<string, Turtle>();
+        public Dictionary<string, string> Funcs { get; private set; } = new Dictionary<string, string>();
 
         public Environment()
         {
@@ -25,7 +26,7 @@ namespace LogoInterpreter.Interpreter
 
             switch (varType)
             {
-                case "double":
+                case "num":
                     Nums.Add(varName, null);
                     break;
 

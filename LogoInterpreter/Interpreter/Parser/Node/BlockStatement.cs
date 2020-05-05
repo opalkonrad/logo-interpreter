@@ -6,13 +6,23 @@ namespace LogoInterpreter.Interpreter
 {
     public class BlockStatement : Statement
     {
-        public List<Statement> statements;
+        public List<Statement> Statements { get; set; }
+
+        public BlockStatement()
+        {
+
+        }
+
+        public BlockStatement(List<Statement> statements)
+        {
+            Statements = statements;
+        }
 
         public override void Execute(Environment environment)
         {
             environment.CreateLocalScope();
 
-            foreach (Statement stmt in statements)
+            foreach (Statement stmt in Statements)
             {
                 stmt.Execute(environment);
             }
