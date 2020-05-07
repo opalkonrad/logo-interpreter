@@ -4,18 +4,14 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class BlockStatement : Node
+    public class VarDeclaration : Node
     {
-        public List<Node> Statements { get; set; } = new List<Node>();
+        public string Type { get; set; }
+        public string Name { get; set; }
 
-        public BlockStatement()
+        public VarDeclaration()
         {
 
-        }
-
-        public BlockStatement(List<Node> statements)
-        {
-            Statements = statements;
         }
 
         public override void Accept(Visitor visitor)

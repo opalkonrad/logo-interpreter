@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -13,6 +14,7 @@ namespace LogoInterpreter.Interpreter
 
         private ISource source;
         private Position beginPosition;
+        private Token peekedToken;
 
         public Lexer(ISource source)
         {
@@ -22,25 +24,30 @@ namespace LogoInterpreter.Interpreter
 
         public Token PeekNextToken()
         {
-            // Save current context of Lexer
-            Token prevToken = Token;
-            Position prevSourcePos = new Position(source.Position);
-            char prevSourceChar = source.CurrChar;
+            // No peeked token, find it, source position will be set on the new token but it's fine
+            if (peekedToken is null)
+            {
+                Token currToken = Token;
 
-            NextToken();
+                NextToken();
 
-            Token peekedToken = Token;
-
-            // Restore context
-            Token = prevToken;
-            source.Position = prevSourcePos;
-            source.CurrChar = prevSourceChar;
+                peekedToken = Token;
+                Token = currToken;
+            }
 
             return peekedToken;
         }
 
         public void NextToken()
         {
+            // If there was PeekNextToken() -> return peeked token, otherwise find next token
+            if (!(peekedToken is null))
+            {
+                Token = peekedToken;
+                peekedToken = null;
+                return;
+            }
+
             // Skip whitespace
             skipWhitespace();
 

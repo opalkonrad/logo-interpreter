@@ -53,36 +53,12 @@ namespace LogoInterpreter
         {
             Lexer lexer = new Lexer(new StringSource(CodeEditorTextBox.Text));
 
-            /*Parser parser = new Parser(lexer);
+            Parser parser = new Parser(lexer);
 
             Program program = parser.Parse();
-            ConsoleTextBox.Text += program.ToString();*/
+            ConsoleTextBox.Text += program.ToString();
 
-            lexer.NextToken();
-            ConsoleTextBox.Text += lexer.Token.ToString();
-            ConsoleTextBox.Text += "\n";
-
-            lexer.NextToken();
-            ConsoleTextBox.Text += lexer.Token.ToString();
-            ConsoleTextBox.Text += "\n";
-
-            Token token = lexer.PeekNextToken();
-            ConsoleTextBox.Text += token.ToString();
-            ConsoleTextBox.Text += "\n";
-
-            token = lexer.PeekNextToken();
-            ConsoleTextBox.Text += token.ToString();
-            ConsoleTextBox.Text += "\n";
-
-            lexer.NextToken();
-            ConsoleTextBox.Text += lexer.Token.ToString();
-            ConsoleTextBox.Text += "\n";
-
-            token = lexer.PeekNextToken();
-            ConsoleTextBox.Text += token.ToString();
-            ConsoleTextBox.Text += "\n";
-
-            try
+            /*try
             {
                 while (!(lexer.Token is EndOfTextToken))
                 {
@@ -94,7 +70,7 @@ namespace LogoInterpreter
             catch (LexerException ex)
             {
                 ConsoleTextBox.Text += ex.Message;
-            }
+            }*/
 
 
             /*Line line = new Line();

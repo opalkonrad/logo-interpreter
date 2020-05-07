@@ -4,18 +4,14 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class BlockStatement : Node
+    public class FuncCall : Node
     {
-        public List<Node> Statements { get; set; } = new List<Node>();
+        public string Name { get; set; }
+        public List<string> Arguments { get; set; } = new List<string>();
 
-        public BlockStatement()
+        public FuncCall()
         {
 
-        }
-
-        public BlockStatement(List<Node> statements)
-        {
-            Statements = statements;
         }
 
         public override void Accept(Visitor visitor)

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class Parameter
+    public class Parameter : Node
     {
         public string Type { get; }
         public string Name { get; }
@@ -15,10 +15,15 @@ namespace LogoInterpreter.Interpreter
             Name = name;
         }
 
-        public Parameter(VarDeclarationStmt statement)
+        public Parameter(VarDeclaration statement)
         {
             Type = statement.Type;
 
+        }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

@@ -4,18 +4,15 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class BlockStatement : Node
+    public class MethCall : Node
     {
-        public List<Node> Statements { get; set; } = new List<Node>();
+        public string Turtle { get; set; }
+        public string Name { get; set; }
+        public string Argument { get; set; }
 
-        public BlockStatement()
+        public MethCall()
         {
 
-        }
-
-        public BlockStatement(List<Node> statements)
-        {
-            Statements = statements;
         }
 
         public override void Accept(Visitor visitor)

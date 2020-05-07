@@ -10,5 +10,7 @@ namespace LogoInterpreter.Interpreter
         public double LineThickness { get; set; }
         public string Color { get; set; }
         public double Draw { get; set; }
+
+
     }
 }

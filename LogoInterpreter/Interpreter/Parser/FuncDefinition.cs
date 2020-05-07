@@ -8,20 +8,12 @@ namespace LogoInterpreter.Interpreter
     public class FuncDefinition
     {
         public string Name { get; set; }
-        public List<VarDeclarationStmt> Parameters { get; set; }
+        public List<VarDeclaration> Parameters { get; set; }
         public BlockStatement Body { get; set; }
-        //public string ReturnType { get; }
 
         public FuncDefinition()
         {
 
-        }
-
-        public FuncDefinition(string name, List<VarDeclarationStmt> parameters, BlockStatement body)
-        {
-            Name = name;
-            Parameters = parameters;
-            Body = body;
         }
 
         public override string ToString()
@@ -29,7 +21,7 @@ namespace LogoInterpreter.Interpreter
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append($"Name:\n  {Name}\n");
             stringBuilder.Append("Parameters:\n");
-            foreach (VarDeclarationStmt parameter in Parameters)
+            foreach (VarDeclaration parameter in Parameters)
             {
                 stringBuilder.Append($"  {parameter.Type}, {parameter.Name}\n");
             }
