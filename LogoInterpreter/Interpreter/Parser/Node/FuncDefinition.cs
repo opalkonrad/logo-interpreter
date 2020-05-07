@@ -22,7 +22,6 @@ namespace LogoInterpreter.Interpreter
             Name = name;
             Parameters = parameters;
             Body = body;
-            //environment.DeclareNewVar(name, "Func");
         }
 
         public override string ToString()

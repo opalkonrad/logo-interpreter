@@ -22,7 +22,7 @@ namespace LogoInterpreter.Interpreter
 
         public override void Execute(Environment environment)
         {
-            environment.DeclareNewVar(Name, Type);
+            // TODO
         }
     }
 }

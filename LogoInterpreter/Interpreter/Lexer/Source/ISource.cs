@@ -8,8 +8,8 @@ namespace LogoInterpreter.Interpreter
 {
     public interface ISource
     {
-        Position Position { get; }
-        char CurrChar { get; }
+        Position Position { get; set; }
+        char CurrChar { get; set; }
 
         void MoveToNextChar();
     }

@@ -19,7 +19,7 @@ namespace LogoInterpreter.Interpreter
                 result.Append(fd.ToString());
             }
 
-            result.Append("\nStatements\n");
+            result.Append("\nStatements:\n");
             foreach (Statement stmt in Statements)
             {
                 result.Append(stmt.ToString());

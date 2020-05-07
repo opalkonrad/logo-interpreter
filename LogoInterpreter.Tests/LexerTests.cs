@@ -7,6 +7,29 @@ namespace LogoInterpreter.Tests
     public class LexerTests
     {
         [TestMethod]
+        [DataRow("str a")]
+        [DataRow("num b")]
+        public void PeekNextToken_TwoTokens_PeekReturnsIdentifier(string text)
+        {
+            var lexer = new Lexer(new StringSource(text));
+            lexer.NextToken();
+            var peekedToken = lexer.PeekNextToken();
+            Assert.IsInstanceOfType(peekedToken, typeof(IdentifierToken));
+        }
+
+        [TestMethod]
+        [DataRow("str a")]
+        [DataRow("num b")]
+        public void PeekNextToken_TwoTokens_NextAfterPeekReturnsIdentifier(string text)
+        {
+            var lexer = new Lexer(new StringSource(text));
+            lexer.NextToken();
+            lexer.PeekNextToken();
+            lexer.NextToken();
+            Assert.IsInstanceOfType(lexer.Token, typeof(IdentifierToken));
+        }
+
+        [TestMethod]
         [DataRow(" ")]
         [DataRow("\n")]
         [DataRow("\r\n")]

@@ -8,14 +8,12 @@ namespace LogoInterpreter.Interpreter
 {
     public class Parser
     {
-        private Lexer lexer;
-        private Environment environment = new Environment();
-        public Program program { get; private set; } = new Program();
+        private readonly Lexer lexer;
+        public Program Program { get; private set; } = new Program();
 
         public Parser(Lexer lexer)
         {
             this.lexer = lexer;
-            lexer.NextToken();
         }
 
         private Token accept(Type type)
@@ -50,30 +48,38 @@ namespace LogoInterpreter.Interpreter
         {
             while (!(lexer.Token is EndOfTextToken))
             {
+                lexer.NextToken();
+
                 if (lexer.Token is FuncToken)
                 {
-                    program.FuncDefinitions.Add(parseFunc());
+                    Program.FuncDefinitions.Add(parseFunc());
                 }
                 else
                 {
-                    program.Statements.Add(parseStatement());
+                    Program.Statements.Add(parseStatement());
                 }
-                lexer.NextToken();
             }
 
-            return program;
+            return Program;
         }
 
         private FuncDefinition parseFunc()
         {
             FuncDefinition funcDef = new FuncDefinition();
-            
-            // Accept and store identifier
-            Token tmpToken = accept(typeof(IdentifierToken));
-            
+
+            // Accept identifier
+            accept(typeof(IdentifierToken));
+
             // Fill properties of function definition
-            funcDef.Name = (tmpToken as IdentifierToken).Value;
+            funcDef.Name = (lexer.Token as IdentifierToken).Value;
+
+            accept(typeof(LRoundBracketToken));
+            accept(new Type[] { typeof(TurtleToken), typeof(NumToken), typeof(StrToken) });
+
             funcDef.Parameters = parseParameters();
+
+            accept(typeof(LSquareBracketToken));
+
             funcDef.Body = parseBlockStatement();
 
             return funcDef;
@@ -82,27 +88,26 @@ namespace LogoInterpreter.Interpreter
         private List<VarDeclarationStmt> parseParameters()
         {
             List<VarDeclarationStmt> parameters = new List<VarDeclarationStmt>();
+            VarDeclarationStmt parameter;
 
-            accept(typeof(LRoundBracketToken));
-
-            // Expect type specifier or closing round bracket
-            Token tmpToken = accept(new Type[] { typeof(TurtleToken), typeof(NumToken),
-                typeof(StrToken), typeof(RRoundBracketToken) });
-
-            while (!(tmpToken is RRoundBracketToken))
+            try
             {
-                VarDeclarationStmt stmt = parseVarDeclaration();
-                parameters.Add(stmt);
-
-                tmpToken = accept(new Type[] { typeof(CommaToken), typeof(RRoundBracketToken) });
-
-                if (tmpToken is RRoundBracketToken)
+                while (!(lexer.Token is RRoundBracketToken))
                 {
-                    break;
-                }
+                    parameter = parseVarDeclaration();
 
-                tmpToken = accept(new Type[] { typeof(TurtleToken), typeof(NumToken),
-                    typeof(StrToken) });
+                    parameters.Add(parameter);
+
+                    accept(new Type[] { typeof(CommaToken), typeof(RRoundBracketToken) });
+                }
+            }
+            catch (ParserException)
+            {
+                // Rethrow exception if it wasn't closing bracket (thrown by parseVarDeclaration()) which means no parameters
+                if (!(lexer.Token is RRoundBracketToken))
+                {
+                    throw;
+                }
             }
 
             return parameters;
@@ -115,9 +120,9 @@ namespace LogoInterpreter.Interpreter
             // Actual type specifier
             varDeclarationStmt.Type = lexer.Token.GetType().Name;
 
-            // Variable declaration identifier
-            Token tmpToken = accept(typeof(IdentifierToken));
-            varDeclarationStmt.Name = (tmpToken as IdentifierToken).Value;
+            // Variable identifier
+            accept(typeof(IdentifierToken));
+            varDeclarationStmt.Name = (lexer.Token as IdentifierToken).Value;
 
             return varDeclarationStmt;
         }
@@ -126,7 +131,7 @@ namespace LogoInterpreter.Interpreter
         {
             BlockStatement blockStmt = new BlockStatement();
 
-            accept(typeof(LSquareBracketToken));
+            
 
             do
             {
@@ -155,6 +160,11 @@ namespace LogoInterpreter.Interpreter
             return blockStmt;
         }
 
+        private Statement parseStatement()
+        {
+            throw new NotImplementedException();
+        }
+
         private Statement parseVar()
         {
             VarDeclarationStmt node = new VarDeclarationStmt();
@@ -169,10 +179,7 @@ namespace LogoInterpreter.Interpreter
             return node;
         }
 
-        private Statement parseStatement()
-        {
-            throw new NotImplementedException();
-        }
+        
 
     }
 }

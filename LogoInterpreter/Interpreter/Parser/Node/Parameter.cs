@@ -14,6 +14,7 @@ namespace LogoInterpreter.Interpreter
             Type = type;
             Name = name;
         }
+
         public Parameter(VarDeclarationStmt statement)
         {
             Type = statement.Type;

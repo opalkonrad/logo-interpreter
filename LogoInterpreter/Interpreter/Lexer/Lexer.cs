@@ -11,13 +11,32 @@ namespace LogoInterpreter.Interpreter
     {
         public Token Token { get; private set; }
 
-        private readonly ISource source;
+        private ISource source;
         private Position beginPosition;
 
         public Lexer(ISource source)
         {
             this.source = source;
             source.MoveToNextChar();
+        }
+
+        public Token PeekNextToken()
+        {
+            // Save current context of Lexer
+            Token prevToken = Token;
+            Position prevSourcePos = new Position(source.Position);
+            char prevSourceChar = source.CurrChar;
+
+            NextToken();
+
+            Token peekedToken = Token;
+
+            // Restore context
+            Token = prevToken;
+            source.Position = prevSourcePos;
+            source.CurrChar = prevSourceChar;
+
+            return peekedToken;
         }
 
         public void NextToken()

@@ -9,8 +9,8 @@ namespace LogoInterpreter.Interpreter
 {
     public class StringSource : ISource
     {
-        public Position Position { get; private set; } = new Position();
-        public char CurrChar { get; private set; }
+        public Position Position { get; set; } = new Position();
+        public char CurrChar { get; set; }
 
         private readonly string str;
 
