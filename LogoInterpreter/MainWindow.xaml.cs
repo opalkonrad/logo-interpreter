@@ -58,7 +58,9 @@ namespace LogoInterpreter
             try
             {
                 Program program = parser.Parse();
-                ConsoleTextBox.Text += program.ToString();
+
+                ObjectsHierarchyVisitor visitor = new ObjectsHierarchyVisitor(program);
+                visitor.ShowObjectsHierarchy();
             }
             catch (LexerException ex)
             {
@@ -68,8 +70,6 @@ namespace LogoInterpreter
             {
                 ConsoleTextBox.Text += ex.Message;
             }
-
-
 
             /*try
             {

@@ -5,7 +5,7 @@ using System.Windows.Documents;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class FuncDefinition
+    public class FuncDefinition : Node
     {
         public string Name { get; set; }
         public List<VarDeclaration> Parameters { get; set; }
@@ -16,17 +16,9 @@ namespace LogoInterpreter.Interpreter
 
         }
 
-        public override string ToString()
+        public override void Accept(Visitor visitor)
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append($"Name:\n  {Name}\n");
-            stringBuilder.Append("Parameters:\n");
-            foreach (VarDeclaration parameter in Parameters)
-            {
-                stringBuilder.Append($"  {parameter.Type}, {parameter.Name}\n");
-            }
-
-            return stringBuilder.ToString();
+            visitor.Visit(this);
         }
     }
 }
