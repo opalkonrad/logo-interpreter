@@ -173,11 +173,11 @@ namespace LogoInterpreter.Interpreter
         {
             MethCall node = new MethCall();
 
-            node.Turtle = (lexer.Token as IdentifierToken).Value;
+            node.TurtleName = (lexer.Token as IdentifierToken).Value;
 
             accept(typeof(DotToken));
             accept(typeof(IdentifierToken));
-            node.Name = (lexer.Token as IdentifierToken).Value;
+            node.MethName = (lexer.Token as IdentifierToken).Value;
 
             node.Argument = parseExpression();
 
@@ -189,7 +189,7 @@ namespace LogoInterpreter.Interpreter
         private AssignmentStatement parseAssign()
         {
             AssignmentStatement node = new AssignmentStatement();
-            node.Name = (lexer.Token as IdentifierToken).Value;
+            node.Variable = (lexer.Token as IdentifierToken).Value;
 
             accept(typeof(AssignmentToken));
 

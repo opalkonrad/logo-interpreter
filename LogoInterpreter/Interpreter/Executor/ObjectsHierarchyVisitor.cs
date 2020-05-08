@@ -47,17 +47,34 @@ namespace LogoInterpreter.Interpreter
 
         public override void Visit(AddExpression node)
         {
-            throw new NotImplementedException();
+            objectsHierarchy.Write("# Additive Expression:\n");
+
+            objectsHierarchy.Write($"Operator:\n{node.Operator}\n");
+
+            objectsHierarchy.Write($"Left Side Expression:\n");
+            node.Left.Accept(this);
+
+            objectsHierarchy.Write($"Right Side Expression:\n");
+            node.Right?.Accept(this);
+
+            objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(AssignmentStatement node)
         {
-            throw new NotImplementedException();
+            objectsHierarchy.Write("# Assignment Statement:\n");
+
+            objectsHierarchy.Write($"Name:\n{node.Variable}\n");
+
+            objectsHierarchy.Write("Right Side Expression:\n");
+            node.RightSideExpression.Accept(this);            
+
+            objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(BlockStatement node)
         {
-            objectsHierarchy.Write("Block Statement:\n");
+            objectsHierarchy.Write("# Block Statement:\n");
 
             foreach (Node stmt in node.Statements)
             {
@@ -69,63 +86,123 @@ namespace LogoInterpreter.Interpreter
 
         public override void Visit(BoolExpression node)
         {
-            throw new NotImplementedException();
+            objectsHierarchy.Write("# Bool Expression:\n");
+
+            objectsHierarchy.Write($"Operator:\n{node.Operator}\n");
+
+            objectsHierarchy.Write($"Left Side Expression:\n");
+            node.Left.Accept(this);
+
+            objectsHierarchy.Write($"Right Side Expression:\n");
+            node.Right?.Accept(this);
+
+            objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(Expression node)
         {
-            throw new NotImplementedException();
+            objectsHierarchy.Write("# Expression:\n");
+
+            objectsHierarchy.Write($"Operator:\n{node.Operator}\n");
+
+            objectsHierarchy.Write($"Left Side Expression:\n");
+            node.Left.Accept(this);
+
+            objectsHierarchy.Write($"Right Side Expression:\n");
+            node.Right?.Accept(this);
+
+            objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(FuncCall node)
         {
-            throw new NotImplementedException();
+            objectsHierarchy.Write("# Function Call:\n");
+
+            objectsHierarchy.Write($"Name:\n{node.Name}\n");
+
+            objectsHierarchy.Write("Arguments:\n");
+            foreach (Expression argument in node.Arguments)
+            {
+                argument.Accept(this);
+            }
+
+            objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(IfStatement node)
         {
-            throw new NotImplementedException();
+            objectsHierarchy.Write("# If Statement:\n");
+
+            objectsHierarchy.Write($"Condition:\n{node.Condition}\n");
+
+            objectsHierarchy.Write("Body:\n");
+            node.Body.Accept(this);
+
+            objectsHierarchy.Write("Else Body:\n");
+            node.ElseBody?.Accept(this);
+
+            objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(MethCall node)
         {
-            throw new NotImplementedException();
+            objectsHierarchy.Write("# Method Call:\n");
+
+            objectsHierarchy.Write($"Name:\n{node.MethName}\n");
+
+            objectsHierarchy.Write($"Turtle:\n{node.TurtleName}\n");
+
+            objectsHierarchy.Write($"Argument:\n{node.Argument}\n");
+
+            objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(MultExpression node)
         {
-            throw new NotImplementedException();
-        }
+            objectsHierarchy.Write("# Multiplicative Expression:\n");
 
-        public override void Visit(Parameter node)
-        {
-            throw new NotImplementedException();
+            // TODO
+
+            objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(RepeatStatement node)
         {
-            throw new NotImplementedException();
+            objectsHierarchy.Write("# Repeat Statement:\n");
+
+            objectsHierarchy.Write("Number Of Times:\n");
+            node.NumOfTimes.Accept(this);
+
+            objectsHierarchy.Write("Body:\n");
+            node.Body.Accept(this);
+
+            objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(VarDeclaration node)
         {
-            objectsHierarchy.Write("Variable Declaration:\n");
-            objectsHierarchy.Write($"Name:\n{node.Name}\nType:\n{node.Type}\n");
+            objectsHierarchy.Write("# Variable Declaration:\n");
+
+            objectsHierarchy.Write($"Name:\n{node.Name}\n");
+
+            objectsHierarchy.Write($"Type:\n{node.Type}\n");
+
             objectsHierarchy.Write("-------------------------\n");
         }
 
         public override void Visit(FuncDefinition node)
         {
-            objectsHierarchy.Write("Function Definition:\n");
+            objectsHierarchy.Write("# Function Definition:\n");
+
             objectsHierarchy.Write($"Name:\n{node.Name}\n");
 
+            objectsHierarchy.Write("Parameters:\n");
             foreach (VarDeclaration parameter in node.Parameters)
             {
                 parameter.Accept(this);
             }
 
             objectsHierarchy.Write("Body:\n");
-
             node.Body.Accept(this);
 
             objectsHierarchy.Write("-------------------------\n");

@@ -177,14 +177,6 @@ namespace LogoInterpreter.Tests
         }
 
         [TestMethod]
-        public void NextToken_InputKeyword_SetTokenToInputToken()
-        {
-            var lexer = new Lexer(new StringSource("input"));
-            lexer.NextToken();
-            Assert.IsInstanceOfType(lexer.Token, typeof(InputToken));
-        }
-
-        [TestMethod]
         public void NextToken_LessEqualThanString_SetTokenToLessEqualThanToken()
         {
             var lexer = new Lexer(new StringSource("<="));
@@ -222,14 +214,6 @@ namespace LogoInterpreter.Tests
             var lexer = new Lexer(new StringSource("-"));
             lexer.NextToken();
             Assert.IsInstanceOfType(lexer.Token, typeof(MinusToken));
-        }
-
-        [TestMethod]
-        public void NextToken_NewKeyword_SetTokenToNewToken()
-        {
-            var lexer = new Lexer(new StringSource("new"));
-            lexer.NextToken();
-            Assert.IsInstanceOfType(lexer.Token, typeof(NewToken));
         }
 
         [TestMethod]
@@ -309,14 +293,6 @@ namespace LogoInterpreter.Tests
             var lexer = new Lexer(new StringSource("+"));
             lexer.NextToken();
             Assert.IsInstanceOfType(lexer.Token, typeof(PlusToken));
-        }
-
-        [TestMethod]
-        public void NextToken_PrintKeyword_SetTokenToPrintToken()
-        {
-            var lexer = new Lexer(new StringSource("print"));
-            lexer.NextToken();
-            Assert.IsInstanceOfType(lexer.Token, typeof(PrintToken));
         }
 
         [TestMethod]

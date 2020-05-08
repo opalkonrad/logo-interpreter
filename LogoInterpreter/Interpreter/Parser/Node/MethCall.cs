@@ -6,8 +6,8 @@ namespace LogoInterpreter.Interpreter
 {
     public class MethCall : Node
     {
-        public string Turtle { get; set; }
-        public string Name { get; set; }
+        public string TurtleName { get; set; }
+        public string MethName { get; set; }
         public Expression Argument { get; set; }
 
         public MethCall()

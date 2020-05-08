@@ -22,7 +22,6 @@ namespace LogoInterpreter.Interpreter
         public abstract void Visit(IfStatement node);
         public abstract void Visit(MethCall node);
         public abstract void Visit(MultExpression node);
-        public abstract void Visit(Parameter node);
         public abstract void Visit(RepeatStatement node);
         public abstract void Visit(VarDeclaration node);
 
