@@ -4,15 +4,10 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class FuncCall : Node
+    public class AssignmentStatement : Node
     {
         public string Name { get; set; }
-        public List<Expression> Arguments { get; set; }
-
-        public FuncCall()
-        {
-
-        }
+        public Expression RightSideExpression { get; set; }
 
         public override void Accept(Visitor visitor)
         {

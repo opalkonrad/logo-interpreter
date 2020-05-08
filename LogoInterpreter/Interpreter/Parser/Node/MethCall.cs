@@ -8,7 +8,7 @@ namespace LogoInterpreter.Interpreter
     {
         public string Turtle { get; set; }
         public string Name { get; set; }
-        public string Argument { get; set; }
+        public Expression Argument { get; set; }
 
         public MethCall()
         {

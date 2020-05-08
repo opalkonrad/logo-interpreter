@@ -119,7 +119,7 @@ namespace LogoInterpreter.Interpreter
                 RepeatToken _ => parseRepeat(),
 
                 IdentifierToken _ => parseAssignOrFuncMethCall(),
-                _ => throw new ParserException(),
+                _ => throw new ParserException("1"),
             };
         }
 
@@ -131,12 +131,12 @@ namespace LogoInterpreter.Interpreter
             {
                 LRoundBracketToken _ => parseFuncCall(),
                 DotToken _ => parseMethCall(),
-                EqualToken _ => parseAssign(),
+                AssignmentToken _ => parseAssign(),
                 _ => throw new NotImplementedException(),
             };
         }
 
-        private Node parseFuncCall()
+        private FuncCall parseFuncCall()
         {
             FuncCall node = new FuncCall();
 
@@ -151,13 +151,13 @@ namespace LogoInterpreter.Interpreter
             return node;
         }
 
-        private List<string> parseArgs()
+        private List<Expression> parseArgs()
         {
-            List<string> arguments = new List<string>();
+            List<Expression> arguments = new List<Expression>();
 
             while (!(lexer.PeekNextToken() is RRoundBracketToken))
             {
-                arguments.Add(parseArg());
+                arguments.Add(parseExpression());
 
                 if (lexer.PeekNextToken() is CommaToken)
                 {
@@ -167,13 +167,6 @@ namespace LogoInterpreter.Interpreter
             }
 
             return arguments;
-        }
-
-        private string parseArg()
-        {
-            accept(typeof(IdentifierToken));
-
-            return (lexer.Token as IdentifierToken).Value;
         }
 
         private Node parseMethCall()
@@ -186,20 +179,23 @@ namespace LogoInterpreter.Interpreter
             accept(typeof(IdentifierToken));
             node.Name = (lexer.Token as IdentifierToken).Value;
 
-            node.Argument = parseArg();
+            node.Argument = parseExpression();
 
             accept(typeof(RRoundBracketToken));
 
             return node;
         }
 
-        private Node parseAssign()
+        private AssignmentStatement parseAssign()
         {
-            accept(typeof(EqualToken));
+            AssignmentStatement node = new AssignmentStatement();
+            node.Name = (lexer.Token as IdentifierToken).Value;
 
-            // TODO accept expression
-            
-            throw new NotImplementedException();
+            accept(typeof(AssignmentToken));
+
+            node.RightSideExpression = parseExpression();
+
+            return node;
         }
 
         private Node parseIf()
@@ -209,8 +205,7 @@ namespace LogoInterpreter.Interpreter
             accept(typeof(IfToken));
             accept(typeof(LRoundBracketToken));
 
-            // TODO accept expression
-            node.Predicate = parseExpression();
+            node.Condition = parseExpression();
 
             accept(typeof(RRoundBracketToken));
 
@@ -226,15 +221,171 @@ namespace LogoInterpreter.Interpreter
 
         private Node parseRepeat()
         {
-            throw new NotImplementedException();
+            RepeatStatement node = new RepeatStatement();
+
+            accept(typeof(RepeatToken));
+            accept(typeof(LRoundBracketToken));
+
+            node.NumOfTimes = parseExpression();
+
+            accept(typeof(RRoundBracketToken));
+
+            node.Body = parseBlockStatement();
+
+            return node;
         }
 
-
-        private Node parseExpression()
+        private Expression parseExpression()
         {
-            throw new NotImplementedException();
+            Expression node = new Expression();
+
+            node.Left = parseBoolExpression();
+
+            switch (lexer.PeekNextToken())
+            {
+                case EqualToken _:
+                    node.Operator = Expression.BoolOperator.EqualToken;
+                    break;
+
+                case LessThanToken _:
+                    node.Operator = Expression.BoolOperator.LessThanToken;
+                    break;
+
+                case GreaterThanToken _:
+                    node.Operator = Expression.BoolOperator.GreaterThanToken;
+                    break;
+
+                case LessEqualThanToken _:
+                    node.Operator = Expression.BoolOperator.LessEqualThanToken;
+                    break;
+
+                case GreaterEqualThanToken _:
+                    node.Operator = Expression.BoolOperator.GreaterEqualThanToken;
+                    break;
+
+                default:
+                    return node;
+            }
+
+            lexer.NextToken();
+
+            node.Right = parseBoolExpression();
+
+            return node;
         }
 
+        private BoolExpression parseBoolExpression()
+        {
+            BoolExpression node = new BoolExpression();
+
+            node.Left = parseAddExpression();
+
+            switch (lexer.PeekNextToken())
+            {
+                case PlusToken _:
+                    node.Operator = BoolExpression.AddOperator.PlusToken;
+                    break;
+
+                case MinusToken _:
+                    node.Operator = BoolExpression.AddOperator.MinusToken;
+                    break;
+
+                case OrToken _:
+                    node.Operator = BoolExpression.AddOperator.OrToken;
+                    break;
+
+                default:
+                    return node;
+            }
+
+            lexer.NextToken();
+
+            node.Right = parseAddExpression();
+
+            return node;
+        }
+
+        private AddExpression parseAddExpression()
+        {
+            AddExpression node = new AddExpression();
+
+            node.Left = parseMultExpression();
+
+            switch (lexer.PeekNextToken())
+            {
+                case AsteriskToken _:
+                    node.Operator = AddExpression.MultOperator.AsteriskToken;
+                    break;
+
+                case SlashToken _:
+                    node.Operator = AddExpression.MultOperator.SlashToken;
+                    break;
+
+                case AndToken _:
+                    node.Operator = AddExpression.MultOperator.AndToken;
+                    break;
+
+                default:
+                    return node;
+            }
+
+            lexer.NextToken();
+
+            node.Right = parseMultExpression();
+
+            return node;
+        }
+
+        private MultExpression parseMultExpression()
+        {
+            MultExpression node = new MultExpression();
+
+            // Check if unary token
+            if (lexer.PeekNextToken() is MinusToken)
+            {
+                node.Unary = true;
+                accept(typeof(MinusToken));
+            }
+
+            // Expression
+            if (lexer.PeekNextToken() is LRoundBracketToken)
+            {
+                accept(typeof(LRoundBracketToken));
+                node.Expression = parseExpression();
+                accept(typeof(RRoundBracketToken));
+
+                return node;
+            }
+
+            // Identifier or Function Call
+            if (lexer.PeekNextToken() is IdentifierToken)
+            {
+                Token identifier = accept(typeof(IdentifierToken));
+                
+                if (lexer.PeekNextToken() is LRoundBracketToken)
+                {
+                    node.FuncCall = parseFuncCall();
+                }
+                else
+                {
+                    node.Identifier = (identifier as IdentifierToken).Value;
+                }
+
+                return node;
+            }
+
+            // Value
+            if (lexer.PeekNextToken() is NumValueToken)
+            {
+                accept(typeof(NumValueToken));
+                node.Value = (lexer.Token as NumValueToken).Value;
+                return node;
+            }
+
+            throw new ParserException("2");
+
+            // TODO color_val and switch it to switch maybee
+        }
 
         private Token accept(Type type)
         {

@@ -55,8 +55,21 @@ namespace LogoInterpreter
 
             Parser parser = new Parser(lexer);
 
-            Program program = parser.Parse();
-            ConsoleTextBox.Text += program.ToString();
+            try
+            {
+                Program program = parser.Parse();
+                ConsoleTextBox.Text += program.ToString();
+            }
+            catch (LexerException ex)
+            {
+                ConsoleTextBox.Text += ex.Message;
+            }
+            catch (ParserException ex)
+            {
+                ConsoleTextBox.Text += ex.Message;
+            }
+
+
 
             /*try
             {

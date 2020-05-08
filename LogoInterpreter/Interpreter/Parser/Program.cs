@@ -16,13 +16,13 @@ namespace LogoInterpreter.Interpreter
             result.Append("Function Definitions\n");
             foreach (FuncDefinition fd in FuncDefinitions)
             {
-                result.Append(fd.ToString());
+                result.Append(fd.ToString() + "\n");
 
                 result.Append("\nFunction Definitions Statements:\n");
 
                 foreach (Node stmt in fd.Body.Statements)
                 {
-                    result.Append(stmt.ToString());
+                    result.Append(stmt.ToString() + "\n");
                 }
             }
 

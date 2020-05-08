@@ -6,7 +6,8 @@ namespace LogoInterpreter.Interpreter
 {
     public class RepeatStatement : Node
     {
-        
+        public Expression NumOfTimes { get; set; }
+        public BlockStatement Body { get; set; }
 
         public override void Accept(Visitor visitor)
         {

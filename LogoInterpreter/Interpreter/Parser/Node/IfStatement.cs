@@ -6,7 +6,7 @@ namespace LogoInterpreter.Interpreter
 {
     public class IfStatement : Node
     {
-        public Node Predicate { get; set; }
+        public Expression Condition { get; set; }
         public BlockStatement Body { get; set; }
         public BlockStatement ElseBody { get; set; }
         
