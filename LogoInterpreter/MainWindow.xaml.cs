@@ -58,10 +58,6 @@ namespace LogoInterpreter
             try
             {
                 Program program = parser.Parse();
-                int a = 0;
-
-                //ObjectsHierarchyVisitor visitor = new ObjectsHierarchyVisitor(program);
-                //visitor.ShowObjectsHierarchy();
             }
             catch (LexerException ex)
             {

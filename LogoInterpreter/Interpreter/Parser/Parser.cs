@@ -118,9 +118,24 @@ namespace LogoInterpreter.Interpreter
                 IfToken _ => parseIf(),
                 RepeatToken _ => parseRepeat(),
 
+                ReturnToken _ => parseReturn(),
+
                 IdentifierToken _ => parseAssignOrFuncMethCall(),
-                _ => throw new ParserException("1"),
+                _ => throw new ParserException($"Wrong token in { lexer.Token.Position }. " +
+                    $"Expected NumToken, StrToken, TurtleToken, IfToken, RepeatToken, ReturnToken, IdentifierToken, " +
+                    $"got {lexer.Token.GetType().Name} "),
             };
+        }
+
+        private ReturnStatement parseReturn()
+        {
+            ReturnStatement node = new ReturnStatement();
+
+            accept(typeof(ReturnToken));
+
+            node.Expression = parseExpression();
+
+            return node;
         }
 
         private Node parseAssignOrFuncMethCall()
@@ -132,7 +147,8 @@ namespace LogoInterpreter.Interpreter
                 LRoundBracketToken _ => parseFuncCall(),
                 DotToken _ => parseMethCall(),
                 AssignmentToken _ => parseAssign(),
-                _ => throw new NotImplementedException(),
+                _ => throw new ParserException($"Wrong token in { lexer.Token.Position }. " +
+                    $"Expected LRoundBracketToken, DotToken, AssignmentToken, got {lexer.Token.GetType().Name} "),
             };
         }
 
@@ -267,12 +283,14 @@ namespace LogoInterpreter.Interpreter
 
         private ParamExpression parseParamExpression()
         {
+            bool unary = false;
+
             // Check if unary token
-            /*if (lexer.PeekNextToken() is MinusToken)
+            if (lexer.PeekNextToken() is MinusToken)
             {
-                node.Unary = true;
+                unary = true;
                 accept(typeof(MinusToken));
-            }*/
+            }
 
             // Expression
             if (lexer.PeekNextToken() is LRoundBracketToken)
@@ -280,27 +298,30 @@ namespace LogoInterpreter.Interpreter
                 ParamExpression paramExpression = new ExpressionParam();
                 accept(typeof(LRoundBracketToken));
                 (paramExpression as ExpressionParam).Expression = parseExpression();
+                (paramExpression as ExpressionParam).Unary = unary;
                 accept(typeof(RRoundBracketToken));
 
                 return paramExpression;
             }
 
-            // Identifier or Function Call
+            // Identifier or Function call
             if (lexer.PeekNextToken() is IdentifierToken)
             {
                 Token identifier = accept(typeof(IdentifierToken));
                 
+                // Function call
                 if (lexer.PeekNextToken() is LRoundBracketToken)
                 {
                     ParamExpression paramExpression = new FuncCallParam();
                     (paramExpression as FuncCallParam).FuncCall = parseFuncCall();
-
+                    (paramExpression as FuncCallParam).Unary = unary;
                     return paramExpression;
                 }
                 else
                 {
                     ParamExpression paramExpression = new IdentifierParam();
                     (paramExpression as IdentifierParam).Value = (identifier as IdentifierToken).Value;
+                    (paramExpression as IdentifierParam).Unary = unary;
                     return paramExpression;
                 }
             }
@@ -311,12 +332,11 @@ namespace LogoInterpreter.Interpreter
                 ParamExpression paramExpression = new NumParam();
                 accept(typeof(NumValueToken));
                 (paramExpression as NumParam).Value = (lexer.Token as NumValueToken).Value;
+                (paramExpression as NumParam).Unary = unary;
                 return paramExpression;
             }
 
             throw new ParserException("2");
-
-            // TODO color_val and switch it to switch maybee
         }
 
         private Token accept(Type type)

@@ -6,13 +6,12 @@ namespace LogoInterpreter.Interpreter
 {
     public class ParamExpression : Expression
     {
+        public bool Unary { get; set; }
         public override void Accept(Visitor visitor)
         {
             visitor.Visit(this);
         }
     }
-
-
 
     public class NumParam : ParamExpression
     {
