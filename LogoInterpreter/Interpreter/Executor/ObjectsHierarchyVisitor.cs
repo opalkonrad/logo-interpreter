@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+﻿/*using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,7 +45,7 @@ namespace LogoInterpreter.Interpreter
             }
         }
 
-        public override void Visit(AddExpression node)
+        *//*public override void Visit(AddExpression node)
         {
             objectsHierarchy.Write("# Additive Expression:\n");
 
@@ -58,7 +58,7 @@ namespace LogoInterpreter.Interpreter
             node.Right?.Accept(this);
 
             objectsHierarchy.Write("-------------------------\n");
-        }
+        }*//*
 
         public override void Visit(AssignmentStatement node)
         {
@@ -84,7 +84,7 @@ namespace LogoInterpreter.Interpreter
             objectsHierarchy.Write("-------------------------\n");
         }
 
-        public override void Visit(BoolExpression node)
+        *//*public override void Visit(ParamExpression node)
         {
             objectsHierarchy.Write("# Bool Expression:\n");
 
@@ -97,7 +97,7 @@ namespace LogoInterpreter.Interpreter
             node.Right?.Accept(this);
 
             objectsHierarchy.Write("-------------------------\n");
-        }
+        }*//*
 
         public override void Visit(Expression node)
         {
@@ -157,14 +157,14 @@ namespace LogoInterpreter.Interpreter
             objectsHierarchy.Write("-------------------------\n");
         }
 
-        public override void Visit(MultExpression node)
+        *//*public override void Visit(MultExpression node)
         {
             objectsHierarchy.Write("# Multiplicative Expression:\n");
 
             // TODO
 
             objectsHierarchy.Write("-------------------------\n");
-        }
+        }*//*
 
         public override void Visit(RepeatStatement node)
         {
@@ -209,3 +209,4 @@ namespace LogoInterpreter.Interpreter
         }
     }
 }
+*/

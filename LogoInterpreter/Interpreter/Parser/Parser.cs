@@ -239,122 +239,50 @@ namespace LogoInterpreter.Interpreter
         {
             Expression node = new Expression();
 
-            node.Left = parseBoolExpression();
+            node.Operands.Add(parseMultExpression());
 
-            switch (lexer.PeekNextToken())
+            while (lexer.PeekNextToken() is PlusToken || lexer.PeekNextToken() is MinusToken)
             {
-                case EqualToken _:
-                    node.Operator = Expression.BoolOperator.EqualToken;
-                    break;
-
-                case LessThanToken _:
-                    node.Operator = Expression.BoolOperator.LessThanToken;
-                    break;
-
-                case GreaterThanToken _:
-                    node.Operator = Expression.BoolOperator.GreaterThanToken;
-                    break;
-
-                case LessEqualThanToken _:
-                    node.Operator = Expression.BoolOperator.LessEqualThanToken;
-                    break;
-
-                case GreaterEqualThanToken _:
-                    node.Operator = Expression.BoolOperator.GreaterEqualThanToken;
-                    break;
-
-                default:
-                    return node;
+                node.Operators.Add(accept(new Type[] { typeof(PlusToken), typeof(MinusToken) }));
+                node.Operands.Add(parseMultExpression());
             }
-
-            lexer.NextToken();
-
-            node.Right = parseBoolExpression();
 
             return node;
         }
 
-        private BoolExpression parseBoolExpression()
+        private Expression parseMultExpression()
         {
-            BoolExpression node = new BoolExpression();
+            Expression node = new Expression();
 
-            node.Left = parseAddExpression();
+            node.Operands.Add(parseParamExpression());
 
-            switch (lexer.PeekNextToken())
+            while (lexer.PeekNextToken() is AsteriskToken || lexer.PeekNextToken() is SlashToken)
             {
-                case PlusToken _:
-                    node.Operator = BoolExpression.AddOperator.PlusToken;
-                    break;
-
-                case MinusToken _:
-                    node.Operator = BoolExpression.AddOperator.MinusToken;
-                    break;
-
-                case OrToken _:
-                    node.Operator = BoolExpression.AddOperator.OrToken;
-                    break;
-
-                default:
-                    return node;
+                node.Operators.Add(accept(new Type[] { typeof(AsteriskToken), typeof(SlashToken) }));
+                node.Operands.Add(parseParamExpression());
             }
-
-            lexer.NextToken();
-
-            node.Right = parseAddExpression();
 
             return node;
         }
 
-        private AddExpression parseAddExpression()
+        private ParamExpression parseParamExpression()
         {
-            AddExpression node = new AddExpression();
-
-            node.Left = parseMultExpression();
-
-            switch (lexer.PeekNextToken())
-            {
-                case AsteriskToken _:
-                    node.Operator = AddExpression.MultOperator.AsteriskToken;
-                    break;
-
-                case SlashToken _:
-                    node.Operator = AddExpression.MultOperator.SlashToken;
-                    break;
-
-                case AndToken _:
-                    node.Operator = AddExpression.MultOperator.AndToken;
-                    break;
-
-                default:
-                    return node;
-            }
-
-            lexer.NextToken();
-
-            node.Right = parseMultExpression();
-
-            return node;
-        }
-
-        private MultExpression parseMultExpression()
-        {
-            MultExpression node = new MultExpression();
-
             // Check if unary token
-            if (lexer.PeekNextToken() is MinusToken)
+            /*if (lexer.PeekNextToken() is MinusToken)
             {
                 node.Unary = true;
                 accept(typeof(MinusToken));
-            }
+            }*/
 
             // Expression
             if (lexer.PeekNextToken() is LRoundBracketToken)
             {
+                ParamExpression paramExpression = new ExpressionParam();
                 accept(typeof(LRoundBracketToken));
-                node.Expression = parseExpression();
+                (paramExpression as ExpressionParam).Expression = parseExpression();
                 accept(typeof(RRoundBracketToken));
 
-                return node;
+                return paramExpression;
             }
 
             // Identifier or Function Call
@@ -364,22 +292,26 @@ namespace LogoInterpreter.Interpreter
                 
                 if (lexer.PeekNextToken() is LRoundBracketToken)
                 {
-                    node.FuncCall = parseFuncCall();
+                    ParamExpression paramExpression = new FuncCallParam();
+                    (paramExpression as FuncCallParam).FuncCall = parseFuncCall();
+
+                    return paramExpression;
                 }
                 else
                 {
-                    node.Identifier = (identifier as IdentifierToken).Value;
+                    ParamExpression paramExpression = new IdentifierParam();
+                    (paramExpression as IdentifierParam).Value = (identifier as IdentifierToken).Value;
+                    return paramExpression;
                 }
-
-                return node;
             }
 
             // Value
             if (lexer.PeekNextToken() is NumValueToken)
             {
+                ParamExpression paramExpression = new NumParam();
                 accept(typeof(NumValueToken));
-                node.Value = (lexer.Token as NumValueToken).Value;
-                return node;
+                (paramExpression as NumParam).Value = (lexer.Token as NumValueToken).Value;
+                return paramExpression;
             }
 
             throw new ParserException("2");

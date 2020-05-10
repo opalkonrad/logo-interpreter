@@ -6,24 +6,12 @@ namespace LogoInterpreter.Interpreter
 {
     public class Expression : Node
     {
-        public BoolExpression Left { get; set; }
-        public BoolExpression Right { get; set; }
-        public BoolOperator Operator { get; set; }
+        public List<Expression> Operands { get; set; } = new List<Expression>();
+        public List<Token> Operators { get; set; } = new List<Token>();
         
         public override void Accept(Visitor visitor)
         {
             visitor.Visit(this);
-        }
-
-        public enum BoolOperator
-        {
-            Null,
-            // TODO Token !=
-            EqualToken,
-            LessThanToken,
-            GreaterThanToken,
-            LessEqualThanToken,
-            GreaterEqualThanToken
         }
     }
 }
