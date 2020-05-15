@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class VarDeclaration : Node
+    public class VarDeclaration : INode
     {
         public string Type { get; set; }
         public string Name { get; set; }
@@ -14,7 +14,13 @@ namespace LogoInterpreter.Interpreter
 
         }
 
-        public override void Accept(Visitor visitor)
+        public VarDeclaration(string type, string name)
+        {
+            Type = type;
+            Name = name;
+        }
+
+        public void Accept(Visitor visitor)
         {
             visitor.Visit(this);
         }

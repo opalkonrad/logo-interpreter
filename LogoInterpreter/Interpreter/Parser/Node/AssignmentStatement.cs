@@ -4,12 +4,23 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class AssignmentStatement : Node
+    public class AssignmentStatement : INode
     {
         public string Variable { get; set; }
-        public Expression RightSideExpression { get; set; }
+        public AddExpression RightSideExpression { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public AssignmentStatement()
+        {
+
+        }
+
+        public AssignmentStatement(string var, AddExpression rightSide)
+        {
+            Variable = var;
+            RightSideExpression = rightSide;
+        }
+
+        public void Accept(Visitor visitor)
         {
             visitor.Visit(this);
         }

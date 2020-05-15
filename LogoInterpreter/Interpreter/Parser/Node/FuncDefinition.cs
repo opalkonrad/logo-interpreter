@@ -5,7 +5,7 @@ using System.Windows.Documents;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class FuncDefinition : Node
+    public class FuncDefinition : INode
     {
         public string Name { get; set; }
         public List<VarDeclaration> Parameters { get; set; }
@@ -16,7 +16,14 @@ namespace LogoInterpreter.Interpreter
 
         }
 
-        public override void Accept(Visitor visitor)
+        public FuncDefinition(string name, List<VarDeclaration> parameters, BlockStatement body)
+        {
+            Name = name;
+            Parameters = parameters;
+            Body = body;
+        }
+
+        public void Accept(Visitor visitor)
         {
             visitor.Visit(this);
         }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Windows.Documents;
 
@@ -15,351 +17,416 @@ namespace LogoInterpreter.Interpreter
         public Parser(Lexer lexer)
         {
             this.lexer = lexer;
+            lexer.NextToken();
         }
 
         public Program Parse()
         {
-            while (true)
-            {
-                Token tmpToken = lexer.PeekNextToken();
+            Dictionary<string, FuncDefinition> funcDefs = new Dictionary<string, FuncDefinition>();
+            FuncDefinition funcDef;
 
-                if (tmpToken is EndOfTextToken)
+            List<INode> statements = new List<INode>();
+            INode statement;
+
+            while((funcDef = parseFuncDef()) != null | (statement = parseStatement()) != null)
+            {
+                if (funcDef != null)
                 {
-                    return Program;
-                }
-                else if (tmpToken is FuncToken)
-                {
-                    // Create function definition
-                    Program.FuncDefinitions.Add(parseFuncDef());
+                    funcDefs.Add(funcDef.Name, funcDef);
                 }
                 else
                 {
-                    // Parse node - instruction for interpreter
-                    Program.Statements.Add(parseStatement());
+                    statements.Add(statement);
                 }
             }
+            
+            return new Program(statements, funcDefs);
         }
 
         private FuncDefinition parseFuncDef()
         {
-            FuncDefinition funcDef = new FuncDefinition();
+            if (lexer.Token is FuncToken)
+            {
+                lexer.NextToken();
 
-            accept(typeof(FuncToken));
-            accept(typeof(IdentifierToken));
-            funcDef.Name = (lexer.Token as IdentifierToken).Value;
+                Token tmpToken = accept(typeof(IdentifierToken));
+                string funcName = (tmpToken as IdentifierToken).Value;
+                
+                accept(typeof(LRoundBracketToken));
 
-            accept(typeof(LRoundBracketToken));
+                List<VarDeclaration> parameters = parseParameters();
 
-            funcDef.Parameters = parseParameters();
+                accept(typeof(RRoundBracketToken));
 
-            accept(typeof(RRoundBracketToken));
-            
-            funcDef.Body = parseBlockStatement();
+                BlockStatement body = parseBlockStatement();
 
-            return funcDef;
+                return new FuncDefinition(funcName, parameters, body);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private List<VarDeclaration> parseParameters()
         {
-            List<VarDeclaration> node = new List<VarDeclaration>();
-            
-            while (!(lexer.PeekNextToken() is RRoundBracketToken))
-            {
-                node.Add(parseVarDeclaration());
+            List<VarDeclaration> parameters = new List<VarDeclaration>();
+            VarDeclaration varDecl;
 
-                if (lexer.PeekNextToken() is CommaToken)
+            if ((varDecl = parseVarDeclaration()) != null)
+            {
+                parameters.Add(varDecl);
+
+                while (lexer.Token is CommaToken)
                 {
-                    accept(typeof(CommaToken));
-                    continue;
+                    if ((varDecl = parseVarDeclaration()) != null)
+                    {
+                        parameters.Add(varDecl);
+                    }
+                    else
+                    {
+                        throw new ParserException($"Wrong token in {lexer.Token.Position}. Expected TurtleToken, NumToken, StrToken, got {lexer.Token.GetType().Name}");
+                    }
                 }
             }
 
-            return node;
+            return parameters;
         }
 
         private VarDeclaration parseVarDeclaration()
         {
-            VarDeclaration node = new VarDeclaration();
+            if (lexer.Token is TurtleToken || lexer.Token is NumToken || lexer.Token is StrToken)
+            {
+                string type = lexer.Token.GetType().Name;
 
-            accept(new Type[] { typeof(TurtleToken), typeof(NumToken), typeof(StrToken) });
-            node.Type = lexer.Token.GetType().Name;
+                lexer.NextToken();
 
-            accept(typeof(IdentifierToken));
-            node.Name = (lexer.Token as IdentifierToken).Value;
+                Token tmpToken = accept(typeof(IdentifierToken));
+                string name = (tmpToken as IdentifierToken).Value;
 
-            return node;
+                return new VarDeclaration(type, name);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private BlockStatement parseBlockStatement()
         {
             BlockStatement blockStmt = new BlockStatement();
+            INode stmt;
 
             accept(typeof(LSquareBracketToken));
 
-            while (!(lexer.PeekNextToken() is RSquareBracketToken))
+            while ((stmt = parseStatement()) != null)
             {
-                blockStmt.Statements.Add(parseStatement());
+                blockStmt.Statements.Add(stmt);
             }
-            
+
             accept(typeof(RSquareBracketToken));
 
             return blockStmt;
         }
 
-        private Node parseStatement()
+        private INode parseStatement()
         {
-            // Create appropriate statement based on first token
-            return lexer.PeekNextToken() switch
-            {
-                NumToken _ => parseVarDeclaration(),
-                StrToken _ => parseVarDeclaration(),
-                TurtleToken _ => parseVarDeclaration(),
-
-                IfToken _ => parseIf(),
-                RepeatToken _ => parseRepeat(),
-
-                ReturnToken _ => parseReturn(),
-
-                IdentifierToken _ => parseAssignOrFuncMethCall(),
-                _ => throw new ParserException($"Wrong token in { lexer.Token.Position }. " +
-                    $"Expected NumToken, StrToken, TurtleToken, IfToken, RepeatToken, ReturnToken, IdentifierToken, " +
-                    $"got {lexer.Token.GetType().Name} "),
-            };
+            return parseVarDeclaration() ?? parseIf() ?? parseRepeat() ?? parseReturn() ?? parseAssignOrFuncMethCall() ?? null;
         }
 
         private ReturnStatement parseReturn()
         {
-            ReturnStatement node = new ReturnStatement();
-
-            accept(typeof(ReturnToken));
-
-            node.Expression = parseExpression();
-
-            return node;
-        }
-
-        private Node parseAssignOrFuncMethCall()
-        {
-            accept(typeof(IdentifierToken));
-
-            return lexer.PeekNextToken() switch
+            if (lexer.Token is ReturnToken)
             {
-                LRoundBracketToken _ => parseFuncCall(),
-                DotToken _ => parseMethCall(),
-                AssignmentToken _ => parseAssign(),
-                _ => throw new ParserException($"Wrong token in { lexer.Token.Position }. " +
-                    $"Expected LRoundBracketToken, DotToken, AssignmentToken, got {lexer.Token.GetType().Name} "),
-            };
-        }
+                lexer.NextToken();
 
-        private FuncCall parseFuncCall()
-        {
-            FuncCall node = new FuncCall();
+                AddExpression expression = parseExpression();
 
-            node.Name = (lexer.Token as IdentifierToken).Value;
-
-            accept(typeof(LRoundBracketToken));
-
-            node.Arguments = parseArgs();
-
-            accept(typeof(RRoundBracketToken));
-
-            return node;
-        }
-
-        private List<Expression> parseArgs()
-        {
-            List<Expression> arguments = new List<Expression>();
-
-            while (!(lexer.PeekNextToken() is RRoundBracketToken))
+                return new ReturnStatement(expression);
+            }
+            else
             {
-                arguments.Add(parseExpression());
+                return null;
+            }
+        }
 
-                if (lexer.PeekNextToken() is CommaToken)
+        private INode parseAssignOrFuncMethCall()
+        {
+            if (lexer.Token is IdentifierToken)
+            {
+                string identifier = (lexer.Token as IdentifierToken).Value;
+
+                lexer.NextToken();
+
+                return parseFuncCall(identifier) ?? parseMethCall(identifier) ?? parseAssign(identifier) ?? null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private FuncCall parseFuncCall(string identifier)
+        {
+            if (lexer.Token is LRoundBracketToken)
+            {
+                lexer.NextToken();
+
+                List<AddExpression> arguments = parseArgs();
+
+                accept(typeof(RRoundBracketToken));
+
+                return new FuncCall(identifier, arguments);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private List<AddExpression> parseArgs()
+        {
+            List<AddExpression> arguments = new List<AddExpression>();
+            AddExpression expr;
+
+            if ((expr = parseExpression()) != null)
+            {
+                arguments.Add(expr);
+
+                while (lexer.Token is CommaToken)
                 {
-                    accept(typeof(CommaToken));
-                    continue;
+                    if ((expr = parseExpression()) != null)
+                    {
+                        arguments.Add(expr);
+                    }
+                    else
+                    {
+                        throw new ParserException($"Wrong token in {lexer.Token.Position}. Expected expression, got {lexer.Token.GetType().Name}");
+                    }
                 }
             }
 
             return arguments;
         }
 
-        private Node parseMethCall()
+        private INode parseMethCall(string identifier)
         {
-            MethCall node = new MethCall();
-
-            node.TurtleName = (lexer.Token as IdentifierToken).Value;
-
-            accept(typeof(DotToken));
-            accept(typeof(IdentifierToken));
-            node.MethName = (lexer.Token as IdentifierToken).Value;
-
-            node.Argument = parseExpression();
-
-            accept(typeof(RRoundBracketToken));
-
-            return node;
-        }
-
-        private AssignmentStatement parseAssign()
-        {
-            AssignmentStatement node = new AssignmentStatement();
-            node.Variable = (lexer.Token as IdentifierToken).Value;
-
-            accept(typeof(AssignmentToken));
-
-            node.RightSideExpression = parseExpression();
-
-            return node;
-        }
-
-        private Node parseIf()
-        {
-            IfStatement node = new IfStatement();
-
-            accept(typeof(IfToken));
-            accept(typeof(LRoundBracketToken));
-
-            node.Condition = parseExpression();
-
-            accept(typeof(RRoundBracketToken));
-
-            node.Body = parseBlockStatement();
-
-            if (lexer.PeekNextToken() is ElseToken)
+            if (lexer.Token is DotToken)
             {
-                node.ElseBody = parseBlockStatement();
+                lexer.NextToken();
+
+                Token methNameToken = accept(typeof(IdentifierToken));
+                string methName = (methNameToken as IdentifierToken).Value;
+
+                AddExpression argument = parseExpression();
+
+                accept(typeof(RRoundBracketToken));
+
+                return new MethCall(identifier, methName, argument);
             }
-
-            return node;
+            else
+            {
+                return null;
+            }
         }
 
-        private Node parseRepeat()
+        private AssignmentStatement parseAssign(string identifier)
         {
-            RepeatStatement node = new RepeatStatement();
+            if (lexer.Token is AssignmentToken)
+            {
+                lexer.NextToken();
 
-            accept(typeof(RepeatToken));
-            accept(typeof(LRoundBracketToken));
+                AddExpression rightSide = parseExpression();
 
-            node.NumOfTimes = parseExpression();
-
-            accept(typeof(RRoundBracketToken));
-
-            node.Body = parseBlockStatement();
-
-            return node;
+                return new AssignmentStatement(identifier, rightSide);
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        private Expression parseExpression()
+        private INode parseIf()
         {
-            Expression node = new Expression();
+            if (lexer.Token is IfToken)
+            {
+                lexer.NextToken();
+
+                accept(typeof(LRoundBracketToken));
+
+                AddExpression condition = parseExpression();
+
+                accept(typeof(RRoundBracketToken));
+
+                BlockStatement body = parseBlockStatement();
+
+                if (lexer.Token is ElseToken)
+                {
+                    lexer.NextToken();
+
+                    BlockStatement elseBody = parseBlockStatement();
+
+                    return new IfStatement(condition, body, elseBody);
+                }
+
+                return new IfStatement(condition, body, new BlockStatement());
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private RepeatStatement parseRepeat()
+        {
+            if (lexer.Token is RepeatToken)
+            {
+                lexer.NextToken();
+
+                accept(typeof(LRoundBracketToken));
+
+                AddExpression numOfTimes = parseExpression();
+
+                accept(typeof(RRoundBracketToken));
+
+                BlockStatement body = parseBlockStatement();
+
+                return new RepeatStatement(numOfTimes, body);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private AddExpression parseExpression()
+        {
+            AddExpression node = new AddExpression();
 
             node.Operands.Add(parseMultExpression());
 
-            while (lexer.PeekNextToken() is PlusToken || lexer.PeekNextToken() is MinusToken)
+            while (lexer.Token is PlusToken || lexer.Token is MinusToken)
             {
-                node.Operators.Add(accept(new Type[] { typeof(PlusToken), typeof(MinusToken) }));
+                switch (lexer.Token)
+                {
+                    case PlusToken _:
+                        node.Operators.Add(PlusToken.Text);
+                        break;
+
+                    case MinusToken _:
+                        node.Operators.Add(MinusToken.Text);
+                        break;
+                }
+                lexer.NextToken();
+                
                 node.Operands.Add(parseMultExpression());
             }
 
             return node;
         }
 
-        private Expression parseMultExpression()
+        private MultExpression parseMultExpression()
         {
-            Expression node = new Expression();
+            MultExpression node = new MultExpression();
 
             node.Operands.Add(parseParamExpression());
 
-            while (lexer.PeekNextToken() is AsteriskToken || lexer.PeekNextToken() is SlashToken)
+            while (lexer.Token is AsteriskToken || lexer.Token is SlashToken)
             {
-                node.Operators.Add(accept(new Type[] { typeof(AsteriskToken), typeof(SlashToken) }));
+                switch (lexer.Token)
+                {
+                    case AsteriskToken _:
+                        node.Operators.Add(AsteriskToken.Text);
+                        break;
+
+                    case SlashToken _:
+                        node.Operators.Add(SlashToken.Text);
+                        break;
+                }
+                lexer.NextToken();
+
                 node.Operands.Add(parseParamExpression());
             }
 
             return node;
         }
 
-        private ParamExpression parseParamExpression()
+        private INode parseParamExpression()
         {
             bool unary = false;
 
             // Check if unary token
-            if (lexer.PeekNextToken() is MinusToken)
+            if (lexer.Token is MinusToken)
             {
                 unary = true;
-                accept(typeof(MinusToken));
+                lexer.NextToken();
             }
 
             // Expression
-            if (lexer.PeekNextToken() is LRoundBracketToken)
+            if (lexer.Token is LRoundBracketToken)
             {
-                ParamExpression paramExpression = new ExpressionParam();
-                accept(typeof(LRoundBracketToken));
-                (paramExpression as ExpressionParam).Expression = parseExpression();
-                (paramExpression as ExpressionParam).Unary = unary;
+                lexer.NextToken();
+                AddExpression expr = parseExpression();
                 accept(typeof(RRoundBracketToken));
 
-                return paramExpression;
+                return new ExpressionExprParam(unary, expr);
             }
 
-            // Identifier or Function call
-            if (lexer.PeekNextToken() is IdentifierToken)
+            // Identifier or function call
+            if (lexer.Token is IdentifierToken)
             {
-                Token identifier = accept(typeof(IdentifierToken));
-                
-                // Function call
-                if (lexer.PeekNextToken() is LRoundBracketToken)
+                string identifier = (lexer.Token as IdentifierToken).Value;
+                lexer.NextToken();
+
+                // Try to build function call
+                FuncCall funcCall = parseFuncCall(identifier);
+
+                if (funcCall != null)
                 {
-                    ParamExpression paramExpression = new FuncCallParam();
-                    (paramExpression as FuncCallParam).FuncCall = parseFuncCall();
-                    (paramExpression as FuncCallParam).Unary = unary;
-                    return paramExpression;
+                    return new FuncCallExprParam(unary, funcCall);
                 }
                 else
                 {
-                    ParamExpression paramExpression = new IdentifierParam();
-                    (paramExpression as IdentifierParam).Value = (identifier as IdentifierToken).Value;
-                    (paramExpression as IdentifierParam).Unary = unary;
-                    return paramExpression;
+                    return new IdentifierExprParam(unary, identifier);
                 }
             }
 
             // Value
-            if (lexer.PeekNextToken() is NumValueToken)
+            if (lexer.Token is NumValueToken)
             {
-                ParamExpression paramExpression = new NumParam();
-                accept(typeof(NumValueToken));
-                (paramExpression as NumParam).Value = (lexer.Token as NumValueToken).Value;
-                (paramExpression as NumParam).Unary = unary;
-                return paramExpression;
+                double value = (lexer.Token as NumValueToken).Value;
+                lexer.NextToken();
+                return new NumValueExprParam(unary, value);
             }
 
-            throw new ParserException("2");
+            return null;
         }
 
         private Token accept(Type type)
         {
-            lexer.NextToken();
-
+            // Return expected token
             if (lexer.Token.GetType() == type)
             {
-                return lexer.Token;
+                Token tmpToken = lexer.Token;
+                lexer.NextToken();
+                return tmpToken;
             }
-
-            throw new ParserException($"Wrong token in {lexer.Token.Position}. Expected {type.Name}, got {lexer.Token.GetType().Name}");
+            else
+            {
+                throw new ParserException($"Wrong token in {lexer.Token.Position}. Expected {type.Name}, got {lexer.Token.GetType().Name}");
+            }            
         }
 
         private Token accept(Type[] types)
         {
-            lexer.NextToken();
-
+            // Return expected token
             foreach (Type type in types)
             {
                 if (lexer.Token.GetType() == type)
                 {
-                    return lexer.Token;
+                    Token tmpToken = lexer.Token;
+                    lexer.NextToken();
+                    return tmpToken;
                 }
             }
 

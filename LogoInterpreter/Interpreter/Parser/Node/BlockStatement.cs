@@ -4,21 +4,21 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class BlockStatement : Node
+    public class BlockStatement : INode
     {
-        public List<Node> Statements { get; set; } = new List<Node>();
+        public List<INode> Statements { get; set; } = new List<INode>();
 
         public BlockStatement()
         {
 
         }
 
-        public BlockStatement(List<Node> statements)
+        public BlockStatement(List<INode> statements)
         {
             Statements = statements;
         }
 
-        public override void Accept(Visitor visitor)
+        public void Accept(Visitor visitor)
         {
             visitor.Visit(this);
         }

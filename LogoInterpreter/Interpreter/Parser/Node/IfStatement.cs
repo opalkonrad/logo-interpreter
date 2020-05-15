@@ -4,9 +4,9 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class IfStatement : Node
+    public class IfStatement : INode
     {
-        public Expression Condition { get; set; }
+        public AddExpression Condition { get; set; }
         public BlockStatement Body { get; set; }
         public BlockStatement ElseBody { get; set; }
         
@@ -15,7 +15,14 @@ namespace LogoInterpreter.Interpreter
 
         }
 
-        public override void Accept(Visitor visitor)
+        public IfStatement(AddExpression cond, BlockStatement body, BlockStatement elseBody)
+        {
+            Condition = cond;
+            Body = body;
+            ElseBody = elseBody;
+        }
+
+        public void Accept(Visitor visitor)
         {
             visitor.Visit(this);
         }

@@ -58,6 +58,8 @@ namespace LogoInterpreter
             try
             {
                 Program program = parser.Parse();
+
+                int a = 0;
             }
             catch (LexerException ex)
             {

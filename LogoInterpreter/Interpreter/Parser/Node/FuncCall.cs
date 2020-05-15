@@ -4,17 +4,23 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class FuncCall : Node
+    public class FuncCall : INode
     {
         public string Name { get; set; }
-        public List<Expression> Arguments { get; set; }
+        public List<AddExpression> Arguments { get; set; }
 
         public FuncCall()
         {
 
         }
 
-        public override void Accept(Visitor visitor)
+        public FuncCall(string name, List<AddExpression> args)
+        {
+            Name = name;
+            Arguments = args;
+        }
+
+        public void Accept(Visitor visitor)
         {
             visitor.Visit(this);
         }

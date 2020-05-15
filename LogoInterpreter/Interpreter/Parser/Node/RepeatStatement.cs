@@ -4,12 +4,23 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class RepeatStatement : Node
+    public class RepeatStatement : INode
     {
-        public Expression NumOfTimes { get; set; }
+        public AddExpression NumOfTimes { get; set; }
         public BlockStatement Body { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public RepeatStatement()
+        {
+
+        }
+
+        public RepeatStatement(AddExpression numOfTimes, BlockStatement body)
+        {
+            NumOfTimes = numOfTimes;
+            Body = body;
+        }
+
+        public void Accept(Visitor visitor)
         {
             visitor.Visit(this);
         }

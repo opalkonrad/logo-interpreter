@@ -4,9 +4,25 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class Program
+    public class Program : INode
     {
-        public List<Node> Statements { get; set; } = new List<Node>();
-        public List<FuncDefinition> FuncDefinitions { get; set; } = new List<FuncDefinition>();
+        public List<INode> Statements { get; set; } = new List<INode>();
+        public Dictionary<string, FuncDefinition> FuncDefinitions { get; set; } = new Dictionary<string, FuncDefinition>();
+
+        public Program()
+        {
+
+        }
+
+        public Program(List<INode> statements, Dictionary<string, FuncDefinition> funcDefs)
+        {
+            Statements = statements;
+            FuncDefinitions = funcDefs;
+        }
+
+        public void Accept(Visitor visitor)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

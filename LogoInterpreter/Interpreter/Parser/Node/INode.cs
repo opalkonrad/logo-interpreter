@@ -4,8 +4,8 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public abstract class Node
+    public interface INode
     {
-        public abstract void Accept(Visitor visitor);
+        abstract void Accept(Visitor visitor);
     }
 }
