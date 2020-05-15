@@ -368,6 +368,21 @@ namespace LogoInterpreter.Interpreter
                     }
                     
                     return true;
+
+                case '!':
+                    source.MoveToNextChar();
+
+                    if (source.CurrChar == '=')
+                    {
+                        Token = new NotEqualToken(beginPosition);
+                        source.MoveToNextChar();
+                    }
+                    else
+                    {
+                        throw new LexerException("After exclamation mark must be equal sign in " + beginPosition.ToString());
+                    }
+
+                    return true;
             }
 
             return false;

@@ -79,6 +79,8 @@ namespace LogoInterpreter.Interpreter
 
                 while (lexer.Token is CommaToken)
                 {
+                    lexer.NextToken();
+
                     if ((varDecl = parseVarDeclaration()) != null)
                     {
                         parameters.Add(varDecl);
@@ -195,6 +197,8 @@ namespace LogoInterpreter.Interpreter
 
                 while (lexer.Token is CommaToken)
                 {
+                    lexer.NextToken();
+
                     if ((expr = parseExpression()) != null)
                     {
                         arguments.Add(expr);
@@ -254,7 +258,7 @@ namespace LogoInterpreter.Interpreter
 
                 accept(typeof(LRoundBracketToken));
 
-                AddExpression condition = parseExpression();
+                EqualCondition condition = parseCondition();
 
                 accept(typeof(RRoundBracketToken));
 
@@ -402,6 +406,67 @@ namespace LogoInterpreter.Interpreter
             return null;
         }
 
+        private EqualCondition parseCondition()
+        {
+            EqualCondition equalCond = new EqualCondition();
+
+            equalCond.Operands.Add(parseRelationalCondition());
+
+            while (lexer.Token is EqualToken || lexer.Token is NotEqualToken)
+            {
+                switch (lexer.Token)
+                {
+                    case EqualToken _:
+                        equalCond.Operators.Add(EqualToken.Text);
+                        break;
+
+                    case NotEqualToken _:
+                        equalCond.Operators.Add(NotEqualToken.Text);
+                        break;
+                }
+                lexer.NextToken();
+
+                equalCond.Operands.Add(parseRelationalCondition());
+            }
+
+            return equalCond;
+        }
+
+        private RelationalCondition parseRelationalCondition()
+        {
+            RelationalCondition relCond = new RelationalCondition();
+
+            relCond.Operands.Add(parseExpression());
+
+            while (lexer.Token is LessThanToken || lexer.Token is LessEqualThanToken
+                || lexer.Token is GreaterThanToken || lexer.Token is GreaterEqualThanToken)
+            {
+                switch (lexer.Token)
+                {
+                    case LessThanToken _:
+                        relCond.Operators.Add(LessThanToken.Text);
+                        break;
+
+                    case LessEqualThanToken _:
+                        relCond.Operators.Add(LessEqualThanToken.Text);
+                        break;
+
+                    case GreaterThanToken _:
+                        relCond.Operators.Add(GreaterThanToken.Text);
+                        break;
+
+                    case GreaterEqualThanToken _:
+                        relCond.Operators.Add(GreaterEqualThanToken.Text);
+                        break;
+                }
+                lexer.NextToken();
+
+                relCond.Operands.Add(parseExpression());
+            }
+
+            return relCond;
+        }
+
         private Token accept(Type type)
         {
             // Return expected token
@@ -415,23 +480,6 @@ namespace LogoInterpreter.Interpreter
             {
                 throw new ParserException($"Wrong token in {lexer.Token.Position}. Expected {type.Name}, got {lexer.Token.GetType().Name}");
             }            
-        }
-
-        private Token accept(Type[] types)
-        {
-            // Return expected token
-            foreach (Type type in types)
-            {
-                if (lexer.Token.GetType() == type)
-                {
-                    Token tmpToken = lexer.Token;
-                    lexer.NextToken();
-                    return tmpToken;
-                }
-            }
-
-            string expectedTokens = string.Join(", ", types.Select(i => i.Name).ToArray());
-            throw new ParserException($"Wrong token in {lexer.Token.Position}. Expected {expectedTokens}, got {lexer.Token.GetType().Name}");
         }
     }
 }

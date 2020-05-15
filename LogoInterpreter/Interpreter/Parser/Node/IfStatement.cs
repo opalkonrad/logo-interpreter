@@ -6,7 +6,7 @@ namespace LogoInterpreter.Interpreter
 {
     public class IfStatement : INode
     {
-        public AddExpression Condition { get; set; }
+        public EqualCondition Condition { get; set; }
         public BlockStatement Body { get; set; }
         public BlockStatement ElseBody { get; set; }
         
@@ -15,7 +15,7 @@ namespace LogoInterpreter.Interpreter
 
         }
 
-        public IfStatement(AddExpression cond, BlockStatement body, BlockStatement elseBody)
+        public IfStatement(EqualCondition cond, BlockStatement body, BlockStatement elseBody)
         {
             Condition = cond;
             Body = body;
