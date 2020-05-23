@@ -6,6 +6,6 @@ namespace LogoInterpreter.Interpreter
 {
     public interface INode
     {
-        abstract void Accept(Visitor visitor);
+        abstract void Accept(IVisitor visitor);
     }
 }

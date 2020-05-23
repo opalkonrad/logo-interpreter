@@ -4,23 +4,21 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    class ExpressionExprParam : INode
+    public class ReturnStatement : INode
     {
-        public bool Unary { get; set; }
         public AddExpression Expression { get; set; }
 
-        public ExpressionExprParam()
+        public ReturnStatement()
         {
 
         }
 
-        public ExpressionExprParam(bool unary, AddExpression expr)
+        public ReturnStatement(AddExpression expr)
         {
-            Unary = unary;
             Expression = expr;
         }
 
-        public void Accept(Visitor visitor)
+        public void Accept(IVisitor visitor)
         {
             throw new NotImplementedException();
         }

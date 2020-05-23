@@ -4,23 +4,23 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class RelationalCondition : INode
+    public class EqualCondition : INode
     {
-        public List<AddExpression> Operands { get; set; } = new List<AddExpression>();
+        public List<RelationalCondition> Operands { get; set; } = new List<RelationalCondition>();
         public List<string> Operators { get; set; } = new List<string>();
 
-        public RelationalCondition()
+        public EqualCondition()
         {
 
         }
 
-        public RelationalCondition(List<AddExpression> operands, List<string> operators)
+        public EqualCondition(List<RelationalCondition> operands, List<string> operators)
         {
             Operands = operands;
             Operators = operators;
         }
 
-        public void Accept(Visitor visitor)
+        public void Accept(IVisitor visitor)
         {
             throw new NotImplementedException();
         }

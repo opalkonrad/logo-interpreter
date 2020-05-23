@@ -217,6 +217,29 @@ namespace LogoInterpreter.Tests
         }
 
         [TestMethod]
+        public void NextToken_ExlamationMarkAndEqual_SetTokenToNotEqualToken()
+        {
+            var lexer = new Lexer(new StringSource("!="));
+            lexer.NextToken();
+            Assert.IsInstanceOfType(lexer.Token, typeof(NotEqualToken));
+        }
+
+        [TestMethod]
+        public void NextToken_ExlamationMarkAndNotEqual_ThrowLexerException()
+        {
+            var lexer = new Lexer(new StringSource("!a"));
+            try
+            {
+                lexer.NextToken();
+                Assert.Fail();
+            }
+            catch (LexerException)
+            {
+
+            }
+        }
+
+        [TestMethod]
         public void NextToken_NumKeyword_SetTokenToNumToken()
         {
             var lexer = new Lexer(new StringSource("num"));

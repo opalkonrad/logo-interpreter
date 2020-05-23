@@ -20,7 +20,7 @@ namespace LogoInterpreter.Interpreter
             Operators = operators;
         }
 
-        public void Accept(Visitor visitor)
+        public void Accept(IVisitor visitor)
         {
             visitor.Visit(this);
         }

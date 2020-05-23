@@ -18,7 +18,7 @@ namespace LogoInterpreter.Interpreter
             Statements = statements;
         }
 
-        public void Accept(Visitor visitor)
+        public void Accept(IVisitor visitor)
         {
             visitor.Visit(this);
         }

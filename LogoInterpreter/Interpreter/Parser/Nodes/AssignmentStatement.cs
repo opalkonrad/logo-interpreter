@@ -20,7 +20,7 @@ namespace LogoInterpreter.Interpreter
             RightSideExpression = rightSide;
         }
 
-        public void Accept(Visitor visitor)
+        public void Accept(IVisitor visitor)
         {
             visitor.Visit(this);
         }

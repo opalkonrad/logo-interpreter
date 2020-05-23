@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    class IdentifierExprParam : INode
+    public class IdentifierExprParam : INode
     {
         public bool Unary { get; set; }
         public string Value { get; set; }
@@ -20,7 +20,7 @@ namespace LogoInterpreter.Interpreter
             Value = value;
         }
 
-        public void Accept(Visitor visitor)
+        public void Accept(IVisitor visitor)
         {
             throw new NotImplementedException();
         }

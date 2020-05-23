@@ -22,7 +22,7 @@ namespace LogoInterpreter.Interpreter
             Argument = arg;
         }
 
-        public void Accept(Visitor visitor)
+        public void Accept(IVisitor visitor)
         {
             visitor.Visit(this);
         }

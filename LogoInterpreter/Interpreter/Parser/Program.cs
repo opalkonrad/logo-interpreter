@@ -20,7 +20,7 @@ namespace LogoInterpreter.Interpreter
             FuncDefinitions = funcDefs;
         }
 
-        public void Accept(Visitor visitor)
+        public void Accept(IVisitor visitor)
         {
             throw new NotImplementedException();
         }

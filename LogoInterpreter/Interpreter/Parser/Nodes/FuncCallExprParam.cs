@@ -4,23 +4,23 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class NumValueExprParam : INode
+    public class FuncCallExprParam : INode
     {
         public bool Unary { get; set; }
-        public double Value { get; set; }
+        public FuncCall FuncCall { get; set; }
 
-        public NumValueExprParam()
+        public FuncCallExprParam()
         {
 
         }
 
-        public NumValueExprParam(bool unary, double value)
+        public FuncCallExprParam(bool unary, FuncCall funcCall)
         {
             Unary = unary;
-            Value = value;
+            FuncCall = funcCall;
         }
 
-        public void Accept(Visitor visitor)
+        public void Accept(IVisitor visitor)
         {
             throw new NotImplementedException();
         }

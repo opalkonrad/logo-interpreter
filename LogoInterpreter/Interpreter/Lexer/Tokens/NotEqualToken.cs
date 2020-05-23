@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    class NotEqualToken : Token
+    public class NotEqualToken : Token
     {
         public static string Text = "!=";
 
