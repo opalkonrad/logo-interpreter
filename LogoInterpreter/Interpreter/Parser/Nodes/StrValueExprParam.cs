@@ -4,19 +4,17 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class NumValueExprParam : INode
+    public class StrValueExprParam : INode
     {
-        public bool Unary { get; set; }
-        public double Value { get; set; }
+        public string Value { get; set; }
 
-        public NumValueExprParam()
+        public StrValueExprParam()
         {
 
         }
 
-        public NumValueExprParam(bool unary, double value)
+        public StrValueExprParam(string value)
         {
-            Unary = unary;
             Value = value;
         }
 

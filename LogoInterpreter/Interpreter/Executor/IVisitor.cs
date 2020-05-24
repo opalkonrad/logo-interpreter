@@ -14,7 +14,7 @@ namespace LogoInterpreter.Interpreter
         void Visit(AssignmentStatement assignStmt);
         void Visit(BlockStatement blockStmt);
         void Visit(EqualCondition equalCond);
-        void Visit(ExpressionExprParam exprexprparam);
+        void Visit(ExpressionExprParam exprExprParam);
         void Visit(FuncCall funcCall);
         void Visit(FuncCallExprParam funcCallExprParam);
         void Visit(IdentifierExprParam identExprParam);
@@ -25,6 +25,7 @@ namespace LogoInterpreter.Interpreter
         void Visit(RelationalCondition relCond);
         void Visit(RepeatStatement repeatStmt);
         void Visit(ReturnStatement retStmt);
+        void Visit(StrValueExprParam strValExprParam);
         void Visit(VarDeclaration varDecl);
     }
 }

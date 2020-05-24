@@ -389,12 +389,20 @@ namespace LogoInterpreter.Interpreter
                 }
             }
 
-            // Value
+            // Num value
             if (lexer.Token is NumValueToken)
             {
                 double value = (lexer.Token as NumValueToken).Value;
                 lexer.NextToken();
                 return new NumValueExprParam(unary, value);
+            }
+
+            // Str value
+            if (lexer.Token is StrValueToken && !unary)
+            {
+                string value = (lexer.Token as StrValueToken).Value;
+                lexer.NextToken();
+                return new StrValueExprParam(value);
             }
 
             return null;

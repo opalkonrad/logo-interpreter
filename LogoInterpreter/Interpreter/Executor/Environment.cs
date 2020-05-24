@@ -7,7 +7,7 @@ namespace LogoInterpreter.Interpreter
 {
     public class Environment
     {
-        private List<Scope> scopes;
+        private readonly List<Scope> scopes;
 
         public Environment()
         {
@@ -29,9 +29,29 @@ namespace LogoInterpreter.Interpreter
             scopes.Last().AddVarDeclaration(name, type);
         }
 
-        public dynamic GetVarValue(string name)
+        public void AddVarValue(string name, dynamic item)
+        {
+            scopes.Last().AddVar(name, item);
+        }
+
+        public Item GetVarValue(string name)
         {
             return scopes.Last().GetVarValue(name);
+        }
+
+        public void PutOnTheStack(dynamic value)
+        {
+            scopes.Last().PushToTheStack(value);
+        }
+
+        public void PushToTheStack(dynamic value)
+        {
+            scopes.Last().PushToTheStack(value);
+        }
+
+        public dynamic PopFromTheStack()
+        {
+            return scopes.Last().PopFromTheStack();
         }
     }
 }

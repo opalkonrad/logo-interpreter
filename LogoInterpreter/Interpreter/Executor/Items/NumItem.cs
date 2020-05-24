@@ -4,19 +4,19 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class NumItem
+    public class NumItem : Item
     {
-        public string Name { get; }
         public double Value { get; set; }
 
         public NumItem(string name)
+            : base(name)
         {
-            Name = name;
+            
         }
 
         public NumItem(string name, double value)
+            : base(name)
         {
-            Name = name;
             Value = value;
         }
     }

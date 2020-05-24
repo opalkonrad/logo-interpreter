@@ -18,10 +18,7 @@ namespace LogoInterpreter.Interpreter.Executor
 
         public void Visit(AddExpression addExpr)
         {
-            foreach (INode operand in addExpr.Operands)
-            {
-                operand.Accept(this);
-            }
+            throw new NotImplementedException();
         }
 
         public void Visit(AssignmentStatement assignStmt)
@@ -39,7 +36,7 @@ namespace LogoInterpreter.Interpreter.Executor
             throw new NotImplementedException();
         }
 
-        public void Visit(ExpressionExprParam exprexprparam)
+        public void Visit(ExpressionExprParam exprExprParam)
         {
             throw new NotImplementedException();
         }
@@ -71,15 +68,12 @@ namespace LogoInterpreter.Interpreter.Executor
 
         public void Visit(MultExpression multExpr)
         {
-            foreach (INode operand in multExpr.Operands)
-            {
-                operand.Accept(this);
-            }
+            throw new NotImplementedException();
         }
 
         public void Visit(NumValueExprParam numValExprParam)
         {
-            numValExprParam.ToString();
+            throw new NotImplementedException();
         }
 
         public void Visit(RelationalCondition relCond)
@@ -93,6 +87,11 @@ namespace LogoInterpreter.Interpreter.Executor
         }
 
         public void Visit(ReturnStatement retStmt)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(StrValueExprParam strValExprParam)
         {
             throw new NotImplementedException();
         }

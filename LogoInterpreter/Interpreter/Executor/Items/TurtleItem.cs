@@ -4,16 +4,15 @@ using System.Text;
 
 namespace LogoInterpreter.Interpreter
 {
-    public class TurtleItem
+    public class TurtleItem : Item
     {
-        public string Name { get; }
         public string LineColor { get; set; }
         public double LineThickness { get; set; }
         public double Draw { get; set; }
 
         public TurtleItem(string name)
+            : base(name)
         {
-            Name = name;
             LineColor = "Black";
             LineThickness = Draw = 1;
         }

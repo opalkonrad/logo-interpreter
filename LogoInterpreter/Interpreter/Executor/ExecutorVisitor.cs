@@ -31,12 +31,50 @@ namespace LogoInterpreter.Interpreter
 
         public void Visit(AddExpression addExpr)
         {
-            throw new NotImplementedException();
+            // No operators -> count lower layers of expression
+            if (addExpr.Operators.Count == 0)
+            {
+                addExpr.Operands[0].Accept(this);
+            }
+
+            int operandCntr = 0;
+
+            foreach (string oper in addExpr.Operators)
+            {
+                addExpr.Operands[operandCntr++].Accept(this);
+                addExpr.Operands[operandCntr++].Accept(this);
+
+                switch (oper)
+                {
+                    case "+":
+
+                        break;
+
+                    case "-":
+
+                        break;
+                }
+            }
         }
 
         public void Visit(AssignmentStatement assignStmt)
         {
-            throw new NotImplementedException();
+            // Count right side of expression and place result on the stack
+            assignStmt.RightSideExpression.Accept(this);
+
+            // Find variable in scope and try to assign it a value
+            Item currItem = Environment.GetVarValue(assignStmt.Variable);
+            dynamic varFromStack = Environment.PopFromTheStack();
+
+            if (currItem is StrItem && varFromStack is string)
+            {
+                (currItem as StrItem).Value = varFromStack;
+            }
+            else if (currItem is NumItem && varFromStack is double)
+            {
+                (currItem as NumItem).Value = varFromStack;
+            }
+            /*else if (item is TurtleToken)*/
         }
 
         public void Visit(BlockStatement blockStmt)
@@ -49,7 +87,7 @@ namespace LogoInterpreter.Interpreter
             throw new NotImplementedException();
         }
 
-        public void Visit(ExpressionExprParam exprexprparam)
+        public void Visit(ExpressionExprParam exprExprParam)
         {
             throw new NotImplementedException();
         }
@@ -81,12 +119,17 @@ namespace LogoInterpreter.Interpreter
 
         public void Visit(MultExpression multExpr)
         {
-            throw new NotImplementedException();
+            // No operators -> count lower layers of expression
+            if (multExpr.Operators.Count == 0)
+            {
+                multExpr.Operands[0].Accept(this);
+            }
         }
 
         public void Visit(NumValueExprParam numValExprParam)
         {
-            throw new NotImplementedException();
+            Environment.PutOnTheStack(numValExprParam.Unary == true ?
+                numValExprParam.Value * (-1) : numValExprParam.Value);
         }
 
         public void Visit(RelationalCondition relCond)
@@ -102,6 +145,11 @@ namespace LogoInterpreter.Interpreter
         public void Visit(ReturnStatement retStmt)
         {
             throw new NotImplementedException();
+        }
+
+        public void Visit(StrValueExprParam strValExprParam)
+        {
+            Environment.PutOnTheStack(strValExprParam.Value);
         }
 
         public void Visit(VarDeclaration varDecl)

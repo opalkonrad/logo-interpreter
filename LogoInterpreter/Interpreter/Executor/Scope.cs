@@ -6,11 +6,13 @@ namespace LogoInterpreter.Interpreter
 {
     public class Scope
     {
-        public Dictionary<string, dynamic> Items { get; private set; }
+        public Dictionary<string, Item> Items { get; private set; }
+        public Stack<dynamic> Stack { get; private set; }
 
         public Scope()
         {
-            Items = new Dictionary<string, object>();
+            Items = new Dictionary<string, Item>();
+            Stack = new Stack<dynamic>();
         }
 
         public void AddVarDeclaration(string name, string type)
@@ -31,9 +33,24 @@ namespace LogoInterpreter.Interpreter
             }
         }
 
-        public dynamic GetVarValue(string name)
+        public Item GetVarValue(string name)
         {
             return Items[name];
+        }
+
+        public void AddVar(string name, dynamic item)
+        {
+            Items[name] = item;
+        }
+
+        public void PushToTheStack(dynamic value)
+        {
+            Stack.Push(value);
+        }
+
+        public dynamic PopFromTheStack()
+        {
+            return Stack.Pop();
         }
     }
 }
