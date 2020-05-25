@@ -301,54 +301,70 @@ namespace LogoInterpreter.Interpreter
 
         private AddExpression parseExpression()
         {
-            AddExpression node = new AddExpression();
+            MultExpression firstOperand = parseMultExpression();
 
-            node.Operands.Add(parseMultExpression());
-
-            while (lexer.Token is PlusToken || lexer.Token is MinusToken)
+            if (firstOperand != null)
             {
-                switch (lexer.Token)
+                AddExpression node = new AddExpression();
+                node.Operands.Add(firstOperand);
+
+                while (lexer.Token is PlusToken || lexer.Token is MinusToken)
                 {
-                    case PlusToken _:
-                        node.Operators.Add(PlusToken.Text);
-                        break;
+                    switch (lexer.Token)
+                    {
+                        case PlusToken _:
+                            node.Operators.Add(PlusToken.Text);
+                            break;
 
-                    case MinusToken _:
-                        node.Operators.Add(MinusToken.Text);
-                        break;
+                        case MinusToken _:
+                            node.Operators.Add(MinusToken.Text);
+                            break;
+                    }
+                    lexer.NextToken();
+
+                    node.Operands.Add(parseMultExpression());
                 }
-                lexer.NextToken();
-                
-                node.Operands.Add(parseMultExpression());
-            }
 
-            return node;
+                return node;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private MultExpression parseMultExpression()
         {
-            MultExpression node = new MultExpression();
+            INode firstOperand = parseParamExpression();
 
-            node.Operands.Add(parseParamExpression());
-
-            while (lexer.Token is AsteriskToken || lexer.Token is SlashToken)
+            if (firstOperand != null)
             {
-                switch (lexer.Token)
+                MultExpression node = new MultExpression();
+                node.Operands.Add(firstOperand);
+
+                while (lexer.Token is AsteriskToken || lexer.Token is SlashToken)
                 {
-                    case AsteriskToken _:
-                        node.Operators.Add(AsteriskToken.Text);
-                        break;
+                    switch (lexer.Token)
+                    {
+                        case AsteriskToken _:
+                            node.Operators.Add(AsteriskToken.Text);
+                            break;
 
-                    case SlashToken _:
-                        node.Operators.Add(SlashToken.Text);
-                        break;
+                        case SlashToken _:
+                            node.Operators.Add(SlashToken.Text);
+                            break;
+                    }
+                    lexer.NextToken();
+
+                    node.Operands.Add(parseParamExpression());
                 }
-                lexer.NextToken();
 
-                node.Operands.Add(parseParamExpression());
+                return node;
             }
-
-            return node;
+            else
+            {
+                return null;
+            }
         }
 
         private INode parseParamExpression()

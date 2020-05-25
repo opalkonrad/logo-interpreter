@@ -36,20 +36,23 @@ namespace LogoInterpreter.Interpreter
             scopes.Last().AddVarDeclaration(item);
         }
 
-        public void AddVarValue(string name, dynamic item)
+        public void AddVarValue(string name, Item item)
         {
             scopes.Last().AddVar(name, item);
         }
 
         public Item GetVarValue(string name)
         {
-            return scopes.Last().GetVarValue(name);
-        }
+            for (int scope = scopes.Count - 1; scope >= 0; scope--)
+            {
+                if (scopes[scope].Contains(name))
+                {
+                    return scopes[scope].GetVarValue(name);
+                }
+            }
 
-        /*public void PutOnTheStack(dynamic value)
-        {
-            scopes.Last().PushToTheStack(value);
-        }*/
+            return null;
+        }
 
         public void PushToTheStack(dynamic value)
         {

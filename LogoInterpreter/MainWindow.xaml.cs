@@ -40,18 +40,14 @@ namespace LogoInterpreter
 
         private void Run_Click(object sender, RoutedEventArgs e)
         {
-            Lexer lexer = new Lexer(new StringSource(CodeEditorTextBox.Text));
-
-            Parser parser = new Parser(lexer);
-
             try
             {
+                Lexer lexer = new Lexer(new StringSource(CodeEditorTextBox.Text));
+                Parser parser = new Parser(lexer);
                 Program program = parser.Parse();
 
                 ExecutorVisitor executeProgram = new ExecutorVisitor(MainCanvas);
                 executeProgram.Visit(program);
-
-                int a = 0;
             }
             catch (LexerException ex)
             {
@@ -61,33 +57,10 @@ namespace LogoInterpreter
             {
                 ConsoleTextBox.Text += ex.Message;
             }
-
-            /*try
-            {
-                while (!(lexer.Token is EndOfTextToken))
-                {
-                    lexer.NextToken();
-                    ConsoleTextBox.Text += lexer.Token.ToString();
-                    ConsoleTextBox.Text += "\n";
-                }
-            }
-            catch (LexerException ex)
+            catch (ExecutorException ex)
             {
                 ConsoleTextBox.Text += ex.Message;
-            }*/
-
-
-            /*Line line = new Line();
-            line.Stroke = System.Windows.Media.Brushes.Black;
-
-            line.X1 = 0;
-            line.Y1 = 0;
-
-            line.X2 = 100;
-            line.Y2 = 100;
-
-            MainCanvas.Children.Add(line);*/
-
+            }
         }
     }    
 }

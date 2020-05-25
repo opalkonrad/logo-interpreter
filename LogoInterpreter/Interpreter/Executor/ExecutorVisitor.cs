@@ -48,11 +48,10 @@ namespace LogoInterpreter.Interpreter
                 {
                     Environment.AddVarDeclaration(param.Name, "StrToken");
                 }
-                // Turtles are reference type objects
-                /*else if (lastArg is TurtleItem && param.Type == "TurtleToken")
+                else if (lastArg is TurtleItem && param.Type == "TurtleToken")
                 {
-                    //Environment.AddVarDeclaration(param.Name, "TurtleToken");
-                }*/
+                    Environment.AddVarValue(param.Name, Environment.GetVarValue(lastArg.Name));
+                }
             }
 
             funcDef.Body.Accept(this);
@@ -222,12 +221,32 @@ namespace LogoInterpreter.Interpreter
         {
             TurtleItem turtle = (TurtleItem)Environment.GetVarValue(methCall.TurtleName);
 
-            methCall.Argument.Accept(this);
+            methCall.Argument?.Accept(this);
 
             switch (methCall.MethName)
             {
                 case "Fd":
                     turtle.Fd(Environment.PopFromTheStack());
+                    break;
+
+                case "Bk":
+                    turtle.Bk(Environment.PopFromTheStack());
+                    break;
+
+                case "Rt":
+                    turtle.Rt(Environment.PopFromTheStack());
+                    break;
+
+                case "Lt":
+                    turtle.Lt(Environment.PopFromTheStack());
+                    break;
+
+                case "PU":
+                    turtle.PU();
+                    break;
+
+                case "PD":
+                    turtle.PD();
                     break;
             }
         }
