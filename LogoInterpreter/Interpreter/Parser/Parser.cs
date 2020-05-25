@@ -136,7 +136,8 @@ namespace LogoInterpreter.Interpreter
             {
                 lexer.NextToken();
 
-                AddExpression expression = parseExpression();
+                AddExpression expression = parseExpression()
+                    ?? throw new ParserException("Expected expression in " + lexer.Token.Position);
 
                 return new ReturnStatement(expression);
             }
@@ -236,7 +237,8 @@ namespace LogoInterpreter.Interpreter
             {
                 lexer.NextToken();
 
-                AddExpression rightSide = parseExpression();
+                AddExpression rightSide = parseExpression()
+                     ?? throw new ParserException("Expected expression in " + lexer.Token.Position);
 
                 return new AssignmentStatement(identifier, rightSide);
             }
@@ -254,7 +256,8 @@ namespace LogoInterpreter.Interpreter
 
                 accept(typeof(LRoundBracketToken));
 
-                EqualCondition condition = parseCondition();
+                EqualCondition condition = parseCondition()
+                    ?? throw new ParserException("Expected condition in " + lexer.Token.Position);
 
                 accept(typeof(RRoundBracketToken));
 
@@ -285,7 +288,8 @@ namespace LogoInterpreter.Interpreter
 
                 accept(typeof(LRoundBracketToken));
 
-                AddExpression numOfTimes = parseExpression();
+                AddExpression numOfTimes = parseExpression()
+                     ?? throw new ParserException("Expected expression in " + lexer.Token.Position);
 
                 accept(typeof(RRoundBracketToken));
 
@@ -382,7 +386,8 @@ namespace LogoInterpreter.Interpreter
             if (lexer.Token is LRoundBracketToken && !unary)
             {
                 lexer.NextToken();
-                AddExpression expr = parseExpression();
+                AddExpression expr = parseExpression()
+                     ?? throw new ParserException("Expected expression in " + lexer.Token.Position);
                 accept(typeof(RRoundBracketToken));
 
                 return new ExpressionExprParam(expr);
@@ -428,63 +433,79 @@ namespace LogoInterpreter.Interpreter
 
         private EqualCondition parseCondition()
         {
-            EqualCondition equalCond = new EqualCondition();
+            RelationalCondition firstOperand = parseRelationalCondition();
 
-            equalCond.Operands.Add(parseRelationalCondition());
-
-            while (lexer.Token is EqualToken || lexer.Token is NotEqualToken)
+            if (firstOperand != null)
             {
-                switch (lexer.Token)
+                EqualCondition equalCondition = new EqualCondition();
+                equalCondition.Operands.Add(firstOperand);
+
+                while (lexer.Token is EqualToken || lexer.Token is NotEqualToken)
                 {
-                    case EqualToken _:
-                        equalCond.Operators.Add(EqualToken.Text);
-                        break;
+                    switch (lexer.Token)
+                    {
+                        case EqualToken _:
+                            firstOperand.Operators.Add(EqualToken.Text);
+                            break;
 
-                    case NotEqualToken _:
-                        equalCond.Operators.Add(NotEqualToken.Text);
-                        break;
+                        case NotEqualToken _:
+                            firstOperand.Operators.Add(NotEqualToken.Text);
+                            break;
+                    }
+                    lexer.NextToken();
+
+                    equalCondition.Operands.Add(parseRelationalCondition());
                 }
-                lexer.NextToken();
 
-                equalCond.Operands.Add(parseRelationalCondition());
+                return equalCondition;
             }
-
-            return equalCond;
+            else
+            {
+                return null;
+            }
         }
 
         private RelationalCondition parseRelationalCondition()
         {
-            RelationalCondition relCond = new RelationalCondition();
+            AddExpression firstOperand = parseExpression();
 
-            relCond.Operands.Add(parseExpression());
-
-            while (lexer.Token is LessThanToken || lexer.Token is LessEqualThanToken
-                || lexer.Token is GreaterThanToken || lexer.Token is GreaterEqualThanToken)
+            if (firstOperand != null)
             {
-                switch (lexer.Token)
+                RelationalCondition relCond = new RelationalCondition();
+                relCond.Operands.Add(firstOperand);
+
+                while (lexer.Token is LessThanToken || lexer.Token is LessEqualThanToken
+                    || lexer.Token is GreaterThanToken || lexer.Token is GreaterEqualThanToken)
                 {
-                    case LessThanToken _:
-                        relCond.Operators.Add(LessThanToken.Text);
-                        break;
+                    switch (lexer.Token)
+                    {
+                        case LessThanToken _:
+                            relCond.Operators.Add(LessThanToken.Text);
+                            break;
 
-                    case LessEqualThanToken _:
-                        relCond.Operators.Add(LessEqualThanToken.Text);
-                        break;
+                        case LessEqualThanToken _:
+                            relCond.Operators.Add(LessEqualThanToken.Text);
+                            break;
 
-                    case GreaterThanToken _:
-                        relCond.Operators.Add(GreaterThanToken.Text);
-                        break;
+                        case GreaterThanToken _:
+                            relCond.Operators.Add(GreaterThanToken.Text);
+                            break;
 
-                    case GreaterEqualThanToken _:
-                        relCond.Operators.Add(GreaterEqualThanToken.Text);
-                        break;
+                        case GreaterEqualThanToken _:
+                            relCond.Operators.Add(GreaterEqualThanToken.Text);
+                            break;
+                    }
+                    lexer.NextToken();
+
+                    relCond.Operands.Add(parseExpression());
                 }
-                lexer.NextToken();
 
-                relCond.Operands.Add(parseExpression());
+                return relCond;
             }
-
-            return relCond;
+            else
+            {
+                return null;
+            }
         }
 
         private Token accept(Type type)

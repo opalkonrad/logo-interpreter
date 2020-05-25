@@ -11,7 +11,7 @@ namespace LogoInterpreter.Interpreter
     {
         public Environment Environment { get; private set; }
         public Program Program { get; private set; }
-        private Canvas canvas;
+        private readonly Canvas canvas;
 
         public ExecutorVisitor(Canvas canvas)
         {
@@ -207,7 +207,7 @@ namespace LogoInterpreter.Interpreter
 
             dynamic cond = Environment.PopFromTheStack();
 
-            if (cond)
+            if ((cond is double && cond > 0) || (cond is bool && cond))
             {
                 ifStmt.Body.Accept(this);
             }
