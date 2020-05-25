@@ -1,20 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Reflection.Metadata;
 using System.Text;
+using System.Windows.Controls;
 
 namespace LogoInterpreter.Interpreter
 {
     public class ExecutorVisitor : IVisitor
     {
         public Environment Environment { get; private set; }
+        public Program Program { get; private set; }
+        private Canvas canvas;
 
-        public ExecutorVisitor()
+        public ExecutorVisitor(Canvas canvas)
         {
             Environment = new Environment();
+            this.canvas = canvas;
         }
 
         public void Visit(Program program)
         {
+            Program = program;
             Environment.NewScope();
 
             // Execute statements
@@ -26,34 +33,58 @@ namespace LogoInterpreter.Interpreter
 
         public void Visit(FuncDefinition funcDef)
         {
-            throw new NotImplementedException();
+            Environment.NewScope();
+
+            // Add arguments to new scope
+            foreach (VarDeclaration param in funcDef.Parameters)
+            {
+                dynamic lastArg = Environment.PopFromTheStack();
+
+                if (lastArg is double && param.Type == "NumToken")
+                {
+                    Environment.AddVarDeclaration(param.Name, "NumToken");
+                }
+                else if (lastArg is string && param.Type == "StrToken")
+                {
+                    Environment.AddVarDeclaration(param.Name, "StrToken");
+                }
+                // Turtles are reference type objects
+                /*else if (lastArg is TurtleItem && param.Type == "TurtleToken")
+                {
+                    //Environment.AddVarDeclaration(param.Name, "TurtleToken");
+                }*/
+            }
+
+            funcDef.Body.Accept(this);
+
+            Environment.DeleteScope();
         }
 
         public void Visit(AddExpression addExpr)
         {
-            // No operators -> count lower layers of expression
-            if (addExpr.Operators.Count == 0)
-            {
-                addExpr.Operands[0].Accept(this);
-            }
-
-            int operandCntr = 0;
+            int operandCntr = 1;
+            addExpr.Operands[0].Accept(this);
 
             foreach (string oper in addExpr.Operators)
             {
                 addExpr.Operands[operandCntr++].Accept(this);
-                addExpr.Operands[operandCntr++].Accept(this);
 
-                switch (oper)
+                dynamic rightOper = Environment.PopFromTheStack();
+                dynamic leftOper = Environment.PopFromTheStack();
+
+                if (rightOper.GetType() != leftOper.GetType()) // TODO turtle type
                 {
-                    case "+":
-
-                        break;
-
-                    case "-":
-
-                        break;
+                    throw new ExecutorException("Cannot perform an arithmetic operation on operands of different types");
                 }
+
+                dynamic result = oper switch
+                {
+                    "+" => leftOper + rightOper,
+                    "-" => leftOper - rightOper,
+                    _ => null,
+                };
+
+                Environment.PushToTheStack(result);
             }
         }
 
@@ -74,72 +105,214 @@ namespace LogoInterpreter.Interpreter
             {
                 (currItem as NumItem).Value = varFromStack;
             }
-            /*else if (item is TurtleToken)*/
+            else
+            {
+                throw new ExecutorException("Cannot assign "); // TODO
+            }
         }
 
         public void Visit(BlockStatement blockStmt)
         {
-            throw new NotImplementedException();
+            foreach (INode statement in blockStmt.Statements)
+            {
+                statement.Accept(this);
+            }
         }
 
         public void Visit(EqualCondition equalCond)
         {
-            throw new NotImplementedException();
+            int operandCntr = 1;
+            equalCond.Operands[0].Accept(this);
+
+            foreach (string oper in equalCond.Operators)
+            {
+                equalCond.Operands[operandCntr++].Accept(this);
+
+                dynamic rightOper = Environment.PopFromTheStack();
+                dynamic leftOper = Environment.PopFromTheStack();
+
+                if (rightOper.GetType() != leftOper.GetType())
+                {
+                    throw new ExecutorException("Cannot perform relational condition on operands different than double");
+                }
+
+                dynamic result = oper switch
+                {
+                    "==" => leftOper == rightOper ? true : false,
+                    "!=" => leftOper == rightOper ? false : true,
+                    _ => null,
+                };
+
+                Environment.PushToTheStack(result);
+            }
         }
 
         public void Visit(ExpressionExprParam exprExprParam)
         {
-            throw new NotImplementedException();
+            exprExprParam.Expression.Accept(this);
         }
 
         public void Visit(FuncCall funcCall)
         {
-            throw new NotImplementedException();
+            if (funcCall.Arguments.Count == Program.FuncDefinitions[funcCall.Name].Parameters.Count)
+            {
+                foreach (INode arg in funcCall.Arguments)
+                {
+                    arg.Accept(this);
+                }
+
+                Program.FuncDefinitions[funcCall.Name].Accept(this);
+            }
+            else
+            {
+                throw new EvaluateException("Wrong number of arguments in function call");
+            }
         }
 
         public void Visit(FuncCallExprParam funcCallExprParam)
         {
-            throw new NotImplementedException();
+            funcCallExprParam.FuncCall.Accept(this);
+
+            if (funcCallExprParam.Unary)
+            {
+                Environment.PushToTheStack(Environment.PopFromTheStack() * (-1));
+            }
         }
 
         public void Visit(IdentifierExprParam identExprParam)
         {
-            throw new NotImplementedException();
+            Item ident = Environment.GetVarValue(identExprParam.Value);
+
+            switch (ident)
+            {
+                case StrItem _:
+                    Environment.PushToTheStack((ident as StrItem).Value);
+                    break;
+
+                case NumItem _:
+                    Environment.PushToTheStack((ident as NumItem).Value);
+                    break;
+
+                case TurtleItem _:
+                    Environment.PushToTheStack(ident);
+                    break;
+
+                default:
+                    throw new ExecutorException("Expecting identifier of one of types: str or num");
+            }
         }
 
         public void Visit(IfStatement ifStmt)
         {
-            throw new NotImplementedException();
+            ifStmt.Condition.Accept(this);
+
+            dynamic cond = Environment.PopFromTheStack();
+
+            if (cond)
+            {
+                ifStmt.Body.Accept(this);
+            }
+            else
+            {
+                ifStmt.ElseBody.Accept(this);
+            }
         }
 
         public void Visit(MethCall methCall)
         {
-            throw new NotImplementedException();
+            TurtleItem turtle = (TurtleItem)Environment.GetVarValue(methCall.TurtleName);
+
+            methCall.Argument.Accept(this);
+
+            switch (methCall.MethName)
+            {
+                case "Fd":
+                    turtle.Fd(Environment.PopFromTheStack());
+                    break;
+            }
         }
 
         public void Visit(MultExpression multExpr)
         {
-            // No operators -> count lower layers of expression
-            if (multExpr.Operators.Count == 0)
+            int operandCntr = 1;
+            multExpr.Operands[0].Accept(this);
+
+            foreach (string oper in multExpr.Operators)
             {
-                multExpr.Operands[0].Accept(this);
+                multExpr.Operands[operandCntr++].Accept(this);
+
+                dynamic rightOper = Environment.PopFromTheStack();
+                dynamic leftOper = Environment.PopFromTheStack();
+
+                if (rightOper.GetType() != leftOper.GetType())
+                {
+                    throw new ExecutorException("Cannot perform an arithmetic operation on operands of different types");
+                }
+
+                dynamic result = oper switch
+                {
+                    "*" => leftOper * rightOper,
+                    "/" => leftOper / rightOper,
+                    _ => null,
+                };
+
+                Environment.PushToTheStack(result);
             }
         }
 
         public void Visit(NumValueExprParam numValExprParam)
         {
-            Environment.PutOnTheStack(numValExprParam.Unary == true ?
+            Environment.PushToTheStack(numValExprParam.Unary == true ?
                 numValExprParam.Value * (-1) : numValExprParam.Value);
         }
 
         public void Visit(RelationalCondition relCond)
         {
-            throw new NotImplementedException();
+            int operandCntr = 1;
+            relCond.Operands[0].Accept(this);
+
+            foreach (string oper in relCond.Operators)
+            {
+                relCond.Operands[operandCntr++].Accept(this);
+
+                dynamic rightOper = Environment.PopFromTheStack();
+                dynamic leftOper = Environment.PopFromTheStack();
+
+                if (rightOper.GetType() != leftOper.GetType())
+                {
+                    throw new ExecutorException("Cannot perform relational condition on operands different than double");
+                }
+
+                dynamic result = oper switch
+                {
+                    "<" => leftOper < rightOper ? true : false,
+                    "<=" => leftOper <= rightOper ? true : false,
+                    ">" => leftOper > rightOper ? true : false,
+                    ">=" => leftOper >= rightOper ? true : false,
+                    _ => null,
+                };
+
+                Environment.PushToTheStack(result);
+            }
         }
 
         public void Visit(RepeatStatement repeatStmt)
         {
-            throw new NotImplementedException();
+            repeatStmt.NumOfTimes.Accept(this);
+
+            dynamic numOfTimes = Environment.PopFromTheStack();
+
+            if (numOfTimes is double)
+            {
+                for (int loopCntr = 0; loopCntr < numOfTimes; loopCntr++)
+                {
+                    repeatStmt.Body.Accept(this);
+                }
+            }
+            else
+            {
+                throw new ExecutorException("Number of times in repeat statement is not a digit");
+            }
         }
 
         public void Visit(ReturnStatement retStmt)
@@ -149,12 +322,19 @@ namespace LogoInterpreter.Interpreter
 
         public void Visit(StrValueExprParam strValExprParam)
         {
-            Environment.PutOnTheStack(strValExprParam.Value);
+            Environment.PushToTheStack(strValExprParam.Value);
         }
 
         public void Visit(VarDeclaration varDecl)
         {
-            Environment.AddVarDeclaration(varDecl.Name, varDecl.Type);
+            if (varDecl.Type == "TurtleToken")
+            {
+                Environment.AddVarDeclaration(new TurtleItem(varDecl.Name, canvas));
+            }
+            else
+            {
+                Environment.AddVarDeclaration(varDecl.Name, varDecl.Type);
+            }
         }
     }
 }

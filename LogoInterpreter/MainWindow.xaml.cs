@@ -2,6 +2,9 @@
 using System.IO;
 using Microsoft.Win32;
 using LogoInterpreter.Interpreter;
+using System.Windows.Controls;
+using System;
+using System.Windows.Media;
 
 namespace LogoInterpreter
 {
@@ -45,7 +48,7 @@ namespace LogoInterpreter
             {
                 Program program = parser.Parse();
 
-                ExecutorVisitor executeProgram = new ExecutorVisitor();
+                ExecutorVisitor executeProgram = new ExecutorVisitor(MainCanvas);
                 executeProgram.Visit(program);
 
                 int a = 0;
@@ -86,5 +89,5 @@ namespace LogoInterpreter
             MainCanvas.Children.Add(line);*/
 
         }
-    }
+    }    
 }

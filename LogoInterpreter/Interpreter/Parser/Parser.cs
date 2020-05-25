@@ -20,9 +20,9 @@ namespace LogoInterpreter.Interpreter
             FuncDefinition funcDef;
 
             List<INode> statements = new List<INode>();
-            INode statement;
+            INode statement = null;
 
-            while((funcDef = parseFuncDef()) != null | (statement = parseStatement()) != null)
+            while((funcDef = parseFuncDef()) != null || (statement = parseStatement()) != null)
             {
                 if (funcDef != null)
                 {
@@ -216,6 +216,8 @@ namespace LogoInterpreter.Interpreter
                 Token methNameToken = accept(typeof(IdentifierToken));
                 string methName = (methNameToken as IdentifierToken).Value;
 
+                accept(typeof(LRoundBracketToken));
+
                 AddExpression argument = parseExpression();
 
                 accept(typeof(RRoundBracketToken));
@@ -361,13 +363,13 @@ namespace LogoInterpreter.Interpreter
             }
 
             // Expression
-            if (lexer.Token is LRoundBracketToken)
+            if (lexer.Token is LRoundBracketToken && !unary)
             {
                 lexer.NextToken();
                 AddExpression expr = parseExpression();
                 accept(typeof(RRoundBracketToken));
 
-                return new ExpressionExprParam(unary, expr);
+                return new ExpressionExprParam(expr);
             }
 
             // Identifier or function call

@@ -6,7 +6,6 @@ namespace LogoInterpreter.Interpreter
 {
     public class ExpressionExprParam : INode
     {
-        public bool Unary { get; set; }
         public AddExpression Expression { get; set; }
 
         public ExpressionExprParam()
@@ -14,9 +13,8 @@ namespace LogoInterpreter.Interpreter
 
         }
 
-        public ExpressionExprParam(bool unary, AddExpression expr)
+        public ExpressionExprParam(AddExpression expr)
         {
-            Unary = unary;
             Expression = expr;
         }
 

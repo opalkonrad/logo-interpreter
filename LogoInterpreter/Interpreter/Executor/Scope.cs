@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace LogoInterpreter.Interpreter
@@ -7,12 +8,12 @@ namespace LogoInterpreter.Interpreter
     public class Scope
     {
         public Dictionary<string, Item> Items { get; private set; }
-        public Stack<dynamic> Stack { get; private set; }
+        //public Stack<dynamic> Stack { get; private set; }
 
         public Scope()
         {
             Items = new Dictionary<string, Item>();
-            Stack = new Stack<dynamic>();
+            //Stack = new Stack<dynamic>();
         }
 
         public void AddVarDeclaration(string name, string type)
@@ -27,10 +28,14 @@ namespace LogoInterpreter.Interpreter
                     Items.Add(name, new NumItem(name));
                     break;
 
-                case "TurtleToken":
-                    Items.Add(name, new TurtleItem(name));
-                    break;
+                default:
+                    throw new EvaluateException(); // TODO
             }
+        }
+
+        public void AddVarDeclaration(Item item)
+        {
+            Items.Add(item.Name, item);
         }
 
         public Item GetVarValue(string name)
@@ -43,7 +48,7 @@ namespace LogoInterpreter.Interpreter
             Items[name] = item;
         }
 
-        public void PushToTheStack(dynamic value)
+        /*public void PushToTheStack(dynamic value)
         {
             Stack.Push(value);
         }
@@ -51,6 +56,6 @@ namespace LogoInterpreter.Interpreter
         public dynamic PopFromTheStack()
         {
             return Stack.Pop();
-        }
+        }*/
     }
 }

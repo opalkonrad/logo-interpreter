@@ -8,10 +8,12 @@ namespace LogoInterpreter.Interpreter
     public class Environment
     {
         private readonly List<Scope> scopes;
+        public Stack<dynamic> Stack { get; private set; }
 
         public Environment()
         {
             scopes = new List<Scope>();
+            Stack = new Stack<dynamic>();
         }
 
         public void NewScope()
@@ -29,6 +31,11 @@ namespace LogoInterpreter.Interpreter
             scopes.Last().AddVarDeclaration(name, type);
         }
 
+        public void AddVarDeclaration(Item item)
+        {
+            scopes.Last().AddVarDeclaration(item);
+        }
+
         public void AddVarValue(string name, dynamic item)
         {
             scopes.Last().AddVar(name, item);
@@ -39,19 +46,19 @@ namespace LogoInterpreter.Interpreter
             return scopes.Last().GetVarValue(name);
         }
 
-        public void PutOnTheStack(dynamic value)
+        /*public void PutOnTheStack(dynamic value)
         {
             scopes.Last().PushToTheStack(value);
-        }
+        }*/
 
         public void PushToTheStack(dynamic value)
         {
-            scopes.Last().PushToTheStack(value);
+            Stack.Push(value);
         }
 
         public dynamic PopFromTheStack()
         {
-            return scopes.Last().PopFromTheStack();
+            return Stack.Pop();
         }
     }
 }
