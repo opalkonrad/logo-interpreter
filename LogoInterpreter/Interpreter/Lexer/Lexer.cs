@@ -186,10 +186,7 @@ namespace LogoInterpreter.Interpreter
                     "func" => new FuncToken(beginPosition),
                     "return" => new ReturnToken(beginPosition),
                     "Turtle" => new TurtleToken(beginPosition),
-                    "Red" => new RedToken(beginPosition),
-                    "Green" => new GreenToken(beginPosition),
-                    "Blue" => new BlueToken(beginPosition),
-                    _ => new IdentifierToken(beginPosition, strVal.ToString()),
+                    _ => new IdentifierToken(beginPosition, strVal.ToString())
                 };
 
                 return true;

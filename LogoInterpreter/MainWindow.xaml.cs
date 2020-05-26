@@ -42,8 +42,12 @@ namespace LogoInterpreter
         {
             try
             {
+                // Clear canvas
+                MainCanvas.Children.Clear();
+
                 Lexer lexer = new Lexer(new StringSource(CodeEditorTextBox.Text));
                 Parser parser = new Parser(lexer);
+
                 Program program = parser.Parse();
 
                 ExecutorVisitor executeProgram = new ExecutorVisitor(MainCanvas);
@@ -60,6 +64,10 @@ namespace LogoInterpreter
             catch (ExecutorException ex)
             {
                 ConsoleTextBox.Text += ex.Message;
+            }
+            catch (Exception)
+            {
+                ConsoleTextBox.Text += "\n";
             }
         }
     }    

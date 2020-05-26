@@ -33,6 +33,11 @@ namespace LogoInterpreter.Interpreter
                     statements.Add(statement);
                 }
             }
+
+            if (!(lexer.Token is EndOfTextToken))
+            {
+                throw new ParserException("Did not reach end of text");
+            }
             
             return new Program(statements, funcDefs);
         }

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace LogoInterpreter.Interpreter
 {
@@ -12,11 +15,15 @@ namespace LogoInterpreter.Interpreter
         public Environment Environment { get; private set; }
         public Program Program { get; private set; }
         private readonly Canvas canvas;
+        private bool inFunction;
+        private bool wasReturn;
 
         public ExecutorVisitor(Canvas canvas)
         {
             Environment = new Environment();
             this.canvas = canvas;
+            inFunction = false;
+            wasReturn = false;
         }
 
         public void Visit(Program program)
@@ -35,27 +42,31 @@ namespace LogoInterpreter.Interpreter
         {
             Environment.NewScope();
 
+            // Return statements now can be applied
+            inFunction = true;
+
             // Add arguments to new scope
-            foreach (VarDeclaration param in funcDef.Parameters)
+            for (int currParam = funcDef.Parameters.Count - 1; currParam >= 0; currParam--)
             {
                 dynamic lastArg = Environment.PopFromTheStack();
 
-                if (lastArg is double && param.Type == "NumToken")
+                if (lastArg is double && funcDef.Parameters[currParam].Type == "NumToken")
                 {
-                    Environment.AddVarDeclaration(param.Name, "NumToken");
+                    Environment.AddItem(new NumItem(funcDef.Parameters[currParam].Name, lastArg));
                 }
-                else if (lastArg is string && param.Type == "StrToken")
+                else if (lastArg is string && funcDef.Parameters[currParam].Type == "StrToken")
                 {
-                    Environment.AddVarDeclaration(param.Name, "StrToken");
+                    Environment.AddItem(new StrItem(funcDef.Parameters[currParam].Name, lastArg));
                 }
-                else if (lastArg is TurtleItem && param.Type == "TurtleToken")
+                else if (lastArg is TurtleItem && funcDef.Parameters[currParam].Type == "TurtleToken")
                 {
-                    Environment.AddVarValue(param.Name, Environment.GetVarValue(lastArg.Name));
+                    Environment.AddReferenceToTurtle(funcDef.Parameters[currParam].Name, Environment.GetItem(lastArg.Name));
                 }
             }
 
             funcDef.Body.Accept(this);
 
+            inFunction = false;
             Environment.DeleteScope();
         }
 
@@ -80,7 +91,7 @@ namespace LogoInterpreter.Interpreter
                 {
                     "+" => leftOper + rightOper,
                     "-" => leftOper - rightOper,
-                    _ => null,
+                    _ => throw new ExecutorException($"Unknown additive operator {oper}")
                 };
 
                 Environment.PushToTheStack(result);
@@ -93,7 +104,7 @@ namespace LogoInterpreter.Interpreter
             assignStmt.RightSideExpression.Accept(this);
 
             // Find variable in scope and try to assign it a value
-            Item currItem = Environment.GetVarValue(assignStmt.Variable);
+            Item currItem = Environment.GetItem(assignStmt.Variable);
             dynamic varFromStack = Environment.PopFromTheStack();
 
             if (currItem is StrItem && varFromStack is string)
@@ -115,6 +126,13 @@ namespace LogoInterpreter.Interpreter
             foreach (INode statement in blockStmt.Statements)
             {
                 statement.Accept(this);
+
+                // Interpreter noticed return statement and leaves function
+                if (wasReturn && inFunction)
+                {
+                    wasReturn = false;
+                    return;
+                }
             }
         }
 
@@ -153,6 +171,7 @@ namespace LogoInterpreter.Interpreter
 
         public void Visit(FuncCall funcCall)
         {
+            // Check parameters count
             if (funcCall.Arguments.Count == Program.FuncDefinitions[funcCall.Name].Parameters.Count)
             {
                 foreach (INode arg in funcCall.Arguments)
@@ -164,7 +183,7 @@ namespace LogoInterpreter.Interpreter
             }
             else
             {
-                throw new EvaluateException("Wrong number of arguments in function call");
+                throw new ExecutorException($"Wrong number of arguments in function call called {funcCall.Name}");
             }
         }
 
@@ -180,24 +199,27 @@ namespace LogoInterpreter.Interpreter
 
         public void Visit(IdentifierExprParam identExprParam)
         {
-            Item ident = Environment.GetVarValue(identExprParam.Value);
+            Item ident = Environment.GetItem(identExprParam.Value);
 
             switch (ident)
             {
                 case StrItem _:
-                    Environment.PushToTheStack((ident as StrItem).Value);
+                    Environment.PushToTheStack(identExprParam.Unary == false ? (ident as StrItem).Value
+                        : throw new ExecutorException("Cannot apply unary operator on str"));
                     break;
 
                 case NumItem _:
-                    Environment.PushToTheStack((ident as NumItem).Value);
+                    Environment.PushToTheStack(identExprParam.Unary == true ? (ident as NumItem).Value * (-1)
+                        : (ident as NumItem).Value);
                     break;
 
                 case TurtleItem _:
-                    Environment.PushToTheStack(ident);
+                    Environment.PushToTheStack(identExprParam.Unary == false ? ident
+                        : throw new ExecutorException("Cannot apply unary operator on Turtle"));
                     break;
 
                 default:
-                    throw new ExecutorException("Expecting identifier of one of types: str or num");
+                    throw new ExecutorException($"Expecting identifier of one of types: str, num or Turtle, got {ident}");
             }
         }
 
@@ -207,6 +229,8 @@ namespace LogoInterpreter.Interpreter
 
             dynamic cond = Environment.PopFromTheStack();
 
+            Environment.NewScope();
+
             if ((cond is double && cond > 0) || (cond is bool && cond))
             {
                 ifStmt.Body.Accept(this);
@@ -215,39 +239,70 @@ namespace LogoInterpreter.Interpreter
             {
                 ifStmt.ElseBody.Accept(this);
             }
+
+            Environment.DeleteScope();
         }
 
         public void Visit(MethCall methCall)
         {
-            TurtleItem turtle = (TurtleItem)Environment.GetVarValue(methCall.TurtleName);
-
-            methCall.Argument?.Accept(this);
-
-            switch (methCall.MethName)
+            if (Environment.GetItem(methCall.TurtleName) is TurtleItem turle)
             {
-                case "Fd":
-                    turtle.Fd(Environment.PopFromTheStack());
-                    break;
+                // Check for arguments
+                methCall.Argument?.Accept(this);
 
-                case "Bk":
-                    turtle.Bk(Environment.PopFromTheStack());
-                    break;
+                dynamic arg = Environment.PopFromTheStack();
 
-                case "Rt":
-                    turtle.Rt(Environment.PopFromTheStack());
-                    break;
+                // Color or identifier
+                if (arg is string)
+                {
+                    if (!(arg == "Black" || arg == "Red" || arg == "Green" || arg == "Blue"))
+                    {
+                        arg = Environment.GetItem(arg).Value;
+                    }
+                }
 
-                case "Lt":
-                    turtle.Lt(Environment.PopFromTheStack());
-                    break;
+                // Built-in methods
+                switch (methCall.MethName)
+                {
+                    case "Forward":
+                        turle.Forward(arg);
+                        break;
 
-                case "PU":
-                    turtle.PU();
-                    break;
+                    case "Backward":
+                        turle.Backward(arg);
+                        break;
 
-                case "PD":
-                    turtle.PD();
-                    break;
+                    case "Right":
+                        turle.Right(arg);
+                        break;
+
+                    case "Left":
+                        turle.Left(arg);
+                        break;
+
+                    case "PenUp":
+                        turle.PenUp();
+                        break;
+
+                    case "PenDown":
+                        turle.PenDown();
+                        break;
+
+                    case "LineColor":
+                        turle.LineColor(arg);
+                        break;
+
+                    case "LineThickness":
+                        turle.LineThickness(arg);
+                        break;
+
+                    default:
+                        throw new ExecutorException($"No built-in method called {methCall.MethName} found");
+                }
+            }
+            else
+            {
+                throw new ExecutorException($"Method with the name: {methCall} can only be applied on Turtle object");
             }
         }
 
@@ -272,7 +327,7 @@ namespace LogoInterpreter.Interpreter
                 {
                     "*" => leftOper * rightOper,
                     "/" => leftOper / rightOper,
-                    _ => null,
+                    _ => throw new ExecutorException($"Unknown multiplicative operator {oper}")
                 };
 
                 Environment.PushToTheStack(result);
@@ -281,8 +336,7 @@ namespace LogoInterpreter.Interpreter
 
         public void Visit(NumValueExprParam numValExprParam)
         {
-            Environment.PushToTheStack(numValExprParam.Unary == true ?
-                numValExprParam.Value * (-1) : numValExprParam.Value);
+            Environment.PushToTheStack(numValExprParam.Unary == true ? numValExprParam.Value * (-1) : numValExprParam.Value);
         }
 
         public void Visit(RelationalCondition relCond)
@@ -308,7 +362,7 @@ namespace LogoInterpreter.Interpreter
                     "<=" => leftOper <= rightOper ? true : false,
                     ">" => leftOper > rightOper ? true : false,
                     ">=" => leftOper >= rightOper ? true : false,
-                    _ => null,
+                    _ => throw new ExecutorException($"Unknown relational operator {oper}")
                 };
 
                 Environment.PushToTheStack(result);
@@ -325,18 +379,31 @@ namespace LogoInterpreter.Interpreter
             {
                 for (int loopCntr = 0; loopCntr < numOfTimes; loopCntr++)
                 {
+                    Environment.NewScope();
+
                     repeatStmt.Body.Accept(this);
+
+                    Environment.DeleteScope();
                 }
             }
             else
             {
-                throw new ExecutorException("Number of times in repeat statement is not a digit");
+                throw new ExecutorException($"Number of times: {numOfTimes} in repeat statement should be a digit");
             }
         }
 
         public void Visit(ReturnStatement retStmt)
         {
-            throw new NotImplementedException();
+            // Return Statements can only be applied in function
+            if (inFunction && !wasReturn)
+            {
+                retStmt.Expression.Accept(this);
+                wasReturn = true;
+            }
+            else
+            {
+                throw new ExecutorException("Cannot return value while not in function");
+            }
         }
 
         public void Visit(StrValueExprParam strValExprParam)
@@ -348,7 +415,7 @@ namespace LogoInterpreter.Interpreter
         {
             if (varDecl.Type == "TurtleToken")
             {
-                Environment.AddVarDeclaration(new TurtleItem(varDecl.Name, canvas));
+                Environment.AddItem(new TurtleItem(varDecl.Name, canvas));
             }
             else
             {

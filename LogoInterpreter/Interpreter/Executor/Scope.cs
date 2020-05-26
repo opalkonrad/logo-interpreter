@@ -7,48 +7,53 @@ namespace LogoInterpreter.Interpreter
 {
     public class Scope
     {
-        public Dictionary<string, Item> Items { get; private set; }
+        private readonly Dictionary<string, Item> items;
 
         public Scope()
         {
-            Items = new Dictionary<string, Item>();
+            items = new Dictionary<string, Item>();
         }
 
-        public void AddVarDeclaration(string name, string type)
+        public bool AddVarDeclaration(string name, string type)
         {
             switch (type)
             {
                 case "StrToken":
-                    Items.Add(name, new StrItem(name));
-                    break;
+                    items.Add(name, new StrItem(name));
+                    return true;
 
                 case "NumToken":
-                    Items.Add(name, new NumItem(name));
-                    break;
+                    items.Add(name, new NumItem(name));
+                    return true;
 
                 default:
-                    throw new EvaluateException(); // TODO
+                    return false;
             }
         }
 
-        public void AddVarDeclaration(Item item)
+        public bool AddItem(Item item)
         {
-            Items.Add(item.Name, item);
+            return items.TryAdd(item.Name, item);
         }
 
-        public Item GetVarValue(string name)
+        public Item GetItem(string name)
         {
-            return Items[name];
+            if (items.TryGetValue(name, out Item value))
+            {
+                return value;
+            }
+
+            return null;
         }
 
         public bool Contains(string name)
         {
-            return Items.ContainsKey(name);
+            return items.ContainsKey(name);
         }
 
-        public void AddVar(string name, dynamic item)
+        public bool AddReferenceToTurtle(string refName, Item item)
         {
-            Items[name] = item;
+            return items.TryAdd(refName, item);
         }
     }
 }

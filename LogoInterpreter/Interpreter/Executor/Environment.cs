@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,30 +29,42 @@ namespace LogoInterpreter.Interpreter
 
         public void AddVarDeclaration(string name, string type)
         {
-            scopes.Last().AddVarDeclaration(name, type);
+            if (!scopes.Last().AddVarDeclaration(name, type))
+            {
+                throw new ExecutorException($"Item with the name: {name} already exists");
+            }
         }
 
-        public void AddVarDeclaration(Item item)
+        public void AddReferenceToTurtle(string name, TurtleItem item)
         {
-            scopes.Last().AddVarDeclaration(item);
+            if (!scopes.Last().AddReferenceToTurtle(name, item))
+            {
+                throw new ExecutorException($"Turtle with the reference name: {name} referencing Turtle with the name: {item.Name} already exists");
+            }
         }
 
-        public void AddVarValue(string name, Item item)
+        public void AddItem(Item item)
         {
-            scopes.Last().AddVar(name, item);
+            if (!scopes.Last().AddItem(item))
+            {
+                throw new ExecutorException($"Item with the name: {item.Name} already exists");
+            }
         }
 
-        public Item GetVarValue(string name)
+        public Item GetItem(string name)
         {
+            // Find item in current scope and in higher scopes
             for (int scope = scopes.Count - 1; scope >= 0; scope--)
             {
-                if (scopes[scope].Contains(name))
+                Item item = scopes[scope].GetItem(name);
+
+                if (item != null)
                 {
-                    return scopes[scope].GetVarValue(name);
+                    return item;
                 }
             }
 
-            return null;
+            throw new ExecutorException($"Item with the name: {name} does not exist");
         }
 
         public void PushToTheStack(dynamic value)

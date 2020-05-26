@@ -12,15 +12,14 @@ using System.Windows.Shapes;
 
 namespace LogoInterpreter.Interpreter
 {
-    // Note that rotation transformations are counted counterclockwise and property Rotation is counted clockwise
     public class TurtleItem : Item, ITurtle
     {
-        //public string LineColor { get; set; }
-        //public double LineThickness { get; set; }
         public bool Draw { get; set; } // Pen up, pen down
         public double XPos { get; set; }
         public double YPos { get; set; }
         public double Rotation { get; set; }
+        public Brush TLineColor { get; set; }
+        public double TLineThickness { get; set; }
 
         private readonly Canvas canvas;
         private readonly Image turtleImg;
@@ -28,12 +27,12 @@ namespace LogoInterpreter.Interpreter
         public TurtleItem(string name, Canvas canvas)
             : base(name)
         {
-            //LineColor = "Black";
-            //LineThickness = Draw = 1;
             Draw = true;
             XPos = 0.0;
             YPos = 0.0;
             Rotation = 0.0;
+            TLineColor = Brushes.Black;
+            TLineThickness = 1;
 
             this.canvas = canvas;
             turtleImg = new Image();
@@ -46,13 +45,14 @@ namespace LogoInterpreter.Interpreter
             canvas.Children.Add(turtleImg);
         }
 
-        public void Fd(double value)
+        public void Forward(double value)
         {
             if (Draw)
             {
                 Line line = new Line
                 {
-                    Stroke = Brushes.Black,
+                    Stroke = TLineColor,
+                    StrokeThickness = TLineThickness,
                     X1 = XPos,
                     Y1 = YPos
                 };
@@ -78,13 +78,14 @@ namespace LogoInterpreter.Interpreter
             }
         }
 
-        public void Bk(double value)
+        public void Backward(double value)
         {
             if (Draw)
             {
                 Line line = new Line
                 {
-                    Stroke = Brushes.Black,
+                    Stroke = TLineColor,
+                    StrokeThickness = TLineThickness,
                     X1 = XPos,
                     Y1 = YPos
                 };
@@ -110,30 +111,61 @@ namespace LogoInterpreter.Interpreter
             }
         }
 
-        public void Rt(double value)
+        public void Right(double value)
         {
             Rotation += value;
 
             placeTurtle();
         }
 
-        public void Lt(double value)
+        public void Left(double value)
         {
             Rotation -= value;
 
             placeTurtle();
         }
 
-        public void PU()
+        public void PenUp()
         {
             Draw = false;
         }
 
-        public void PD()
+        public void PenDown()
         {
             Draw = true;
         }
 
+        public void LineColor(string value)
+        {
+            switch (value)
+            {
+                case "Black":
+                    TLineColor = Brushes.Black;
+                    break;
+
+                case "Red":
+                    TLineColor = Brushes.Red;
+                    break;
+
+                case "Green":
+                    TLineColor = Brushes.Green;
+                    break;
+
+                case "Blue":
+                    TLineColor = Brushes.Blue;
+                    break;
+            }
+        }
+
+        public void LineThickness(double value)
+        {
+            if (value > 0 && value < 6)
+            {
+                TLineThickness = (int)value;
+            }
+        }
+
+        // Note that rotation transformations are counted counterclockwise and property Rotation is counted clockwise
         private void placeTurtle()
         {
             // Translate turtle
@@ -144,11 +176,11 @@ namespace LogoInterpreter.Interpreter
             RotateTransform rotate = new RotateTransform(180 + (-Rotation), XPos, YPos);
             turtleImg.RenderTransform = rotate;
 
-            TransformGroup myTransformGroup = new TransformGroup();
-            myTransformGroup.Children.Add(translate);
-            myTransformGroup.Children.Add(rotate);
+            TransformGroup transformations = new TransformGroup();
+            transformations.Children.Add(translate);
+            transformations.Children.Add(rotate);
             
-            turtleImg.RenderTransform = myTransformGroup;
+            turtleImg.RenderTransform = transformations;
         }
     }
 }
