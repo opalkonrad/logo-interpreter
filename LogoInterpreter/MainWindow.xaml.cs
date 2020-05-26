@@ -65,9 +65,9 @@ namespace LogoInterpreter
             {
                 ConsoleTextBox.Text += ex.Message;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                ConsoleTextBox.Text += "\n";
+                ConsoleTextBox.Text += ex.Message;
             }
         }
     }    

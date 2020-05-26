@@ -248,56 +248,68 @@ namespace LogoInterpreter.Interpreter
             if (Environment.GetItem(methCall.TurtleName) is TurtleItem turle)
             {
                 // Check for arguments
-                methCall.Argument?.Accept(this);
-
-                dynamic arg = Environment.PopFromTheStack();
-
-                // Color or identifier
-                if (arg is string)
+                if (methCall.Argument != null)
                 {
-                    if (!(arg == "Black" || arg == "Red" || arg == "Green" || arg == "Blue"))
+                    methCall.Argument.Accept(this);
+
+                    dynamic arg = Environment.PopFromTheStack();
+
+                    // Color or identifier
+                    if (arg is string)
                     {
-                        arg = Environment.GetItem(arg).Value;
+                        if (!(arg == "Black" || arg == "Red" || arg == "Green" || arg == "Blue"))
+                        {
+                            arg = Environment.GetItem(arg).Value;
+                        }
+                    }
+
+                    // Built-in methods with arguments
+                    switch (methCall.MethName)
+                    {
+                        case "Forward":
+                            turle.Forward(arg);
+                            break;
+
+                        case "Backward":
+                            turle.Backward(arg);
+                            break;
+
+                        case "Right":
+                            turle.Right(arg);
+                            break;
+
+                        case "Left":
+                            turle.Left(arg);
+                            break;
+
+                        case "LineColor":
+                            turle.LineColor(arg);
+                            break;
+
+                        case "LineThickness":
+                            turle.LineThickness(arg);
+                            break;
+
+                        default:
+                            throw new ExecutorException($"No built-in method called {methCall.MethName} found");
                     }
                 }
-
-                // Built-in methods
-                switch (methCall.MethName)
+                else
                 {
-                    case "Forward":
-                        turle.Forward(arg);
-                        break;
+                    // Built-in methods with no arguments
+                    switch (methCall.MethName)
+                    {
+                        case "PenUp":
+                            turle.PenUp();
+                            break;
 
-                    case "Backward":
-                        turle.Backward(arg);
-                        break;
+                        case "PenDown":
+                            turle.PenDown();
+                            break;
 
-                    case "Right":
-                        turle.Right(arg);
-                        break;
-
-                    case "Left":
-                        turle.Left(arg);
-                        break;
-
-                    case "PenUp":
-                        turle.PenUp();
-                        break;
-
-                    case "PenDown":
-                        turle.PenDown();
-                        break;
-
-                    case "LineColor":
-                        turle.LineColor(arg);
-                        break;
-
-                    case "LineThickness":
-                        turle.LineThickness(arg);
-                        break;
-
-                    default:
-                        throw new ExecutorException($"No built-in method called {methCall.MethName} found");
+                        default:
+                            throw new ExecutorException($"No built-in method called {methCall.MethName} found");
+                    }
                 }
             }
             else
