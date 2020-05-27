@@ -16,19 +16,17 @@ namespace LogoInterpreter.Interpreter
 
         public bool AddVarDeclaration(string name, string type)
         {
-            switch (type)
+            return type switch
             {
-                case "StrToken":
-                    items.Add(name, new StrItem(name));
-                    return true;
+                "StrToken" => AddItem(new StrItem(name)),
+                "NumToken" => AddItem(new NumItem(name)),
+                _ => false,
+            };
+        }
 
-                case "NumToken":
-                    items.Add(name, new NumItem(name));
-                    return true;
-
-                default:
-                    return false;
-            }
+        public bool AddReferenceToTurtle(string refName, Item item)
+        {
+            return items.TryAdd(refName, item);
         }
 
         public bool AddItem(Item item)
@@ -44,16 +42,6 @@ namespace LogoInterpreter.Interpreter
             }
 
             return null;
-        }
-
-        public bool Contains(string name)
-        {
-            return items.ContainsKey(name);
-        }
-
-        public bool AddReferenceToTurtle(string refName, Item item)
-        {
-            return items.TryAdd(refName, item);
         }
     }
 }

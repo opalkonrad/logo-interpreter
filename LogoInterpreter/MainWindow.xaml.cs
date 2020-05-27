@@ -5,6 +5,7 @@ using LogoInterpreter.Interpreter;
 using System.Windows.Controls;
 using System;
 using System.Windows.Media;
+using System.Windows.Controls.Primitives;
 
 namespace LogoInterpreter
 {
@@ -20,8 +21,6 @@ namespace LogoInterpreter
 
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
-            CodeEditorTextBox.Text = "";
-            ConsoleTextBox.Text = "";
             MainCanvas.Children.Clear();
         }
 
@@ -42,7 +41,7 @@ namespace LogoInterpreter
         {
             try
             {
-                // Clear canvas
+                // Clear canvas and console
                 MainCanvas.Children.Clear();
 
                 Lexer lexer = new Lexer(new StringSource(CodeEditorTextBox.Text));
@@ -55,19 +54,19 @@ namespace LogoInterpreter
             }
             catch (LexerException ex)
             {
-                ConsoleTextBox.Text += ex.Message;
+                MessageBox.Show(ex.Message);
             }
             catch (ParserException ex)
             {
-                ConsoleTextBox.Text += ex.Message;
+                MessageBox.Show(ex.Message);
             }
             catch (ExecutorException ex)
             {
-                ConsoleTextBox.Text += ex.Message;
+                MessageBox.Show(ex.Message);
             }
             catch (Exception ex)
             {
-                ConsoleTextBox.Text += ex.Message;
+                MessageBox.Show(ex.Message);
             }
         }
     }    

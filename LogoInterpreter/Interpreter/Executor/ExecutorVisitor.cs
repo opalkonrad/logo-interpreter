@@ -42,30 +42,32 @@ namespace LogoInterpreter.Interpreter
         {
             Environment.NewScope();
 
-            // Return statements now can be applied
+            // Return statements can now be applied
             inFunction = true;
 
-            // Add arguments to new scope
+            // Add arguments to new scope (reverse order because of stack)
             for (int currParam = funcDef.Parameters.Count - 1; currParam >= 0; currParam--)
             {
-                dynamic lastArg = Environment.PopFromTheStack();
+                dynamic arg = Environment.PopFromTheStack();
 
-                if (lastArg is double && funcDef.Parameters[currParam].Type == "NumToken")
+                if (arg is double && funcDef.Parameters[currParam].Type == "NumToken")
                 {
-                    Environment.AddItem(new NumItem(funcDef.Parameters[currParam].Name, lastArg));
+                    Environment.AddItem(new NumItem(funcDef.Parameters[currParam].Name, arg));
                 }
-                else if (lastArg is string && funcDef.Parameters[currParam].Type == "StrToken")
+                else if (arg is string && funcDef.Parameters[currParam].Type == "StrToken")
                 {
-                    Environment.AddItem(new StrItem(funcDef.Parameters[currParam].Name, lastArg));
+                    Environment.AddItem(new StrItem(funcDef.Parameters[currParam].Name, arg));
                 }
-                else if (lastArg is TurtleItem && funcDef.Parameters[currParam].Type == "TurtleToken")
+                else if (arg is TurtleItem && funcDef.Parameters[currParam].Type == "TurtleToken")
                 {
-                    Environment.AddReferenceToTurtle(funcDef.Parameters[currParam].Name, Environment.GetItem(lastArg.Name));
+                    Environment.AddReferenceToTurtle(funcDef.Parameters[currParam].Name, Environment.GetItem(arg.Name));
                 }
             }
 
+            // Run body of function
             funcDef.Body.Accept(this);
 
+            // Exit function mode
             inFunction = false;
             Environment.DeleteScope();
         }
@@ -82,9 +84,13 @@ namespace LogoInterpreter.Interpreter
                 dynamic rightOper = Environment.PopFromTheStack();
                 dynamic leftOper = Environment.PopFromTheStack();
 
-                if (rightOper.GetType() != leftOper.GetType()) // TODO turtle type
+                if (rightOper.GetType() != leftOper.GetType())
                 {
                     throw new ExecutorException("Cannot perform an arithmetic operation on operands of different types");
+                }
+                else if (leftOper is TurtleItem || leftOper is TurtleItem)
+                {
+                    throw new ExecutorException("Cannot perform an arithmetic operation on operands of type Turtle");
                 }
 
                 dynamic result = oper switch
@@ -100,29 +106,31 @@ namespace LogoInterpreter.Interpreter
 
         public void Visit(AssignmentStatement assignStmt)
         {
-            // Count right side of expression and place result on the stack
+            // Count right side of expression and place the result on the stack
             assignStmt.RightSideExpression.Accept(this);
 
-            // Find variable in scope and try to assign it a value
-            Item currItem = Environment.GetItem(assignStmt.Variable);
+            // Find item (variable) in the scope by name and try to assign it a value
+            Item item = Environment.GetItem(assignStmt.Variable);
             dynamic varFromStack = Environment.PopFromTheStack();
 
-            if (currItem is StrItem && varFromStack is string)
+            if (item is StrItem && varFromStack is string)
             {
-                (currItem as StrItem).Value = varFromStack;
+                (item as StrItem).Value = varFromStack;
             }
-            else if (currItem is NumItem && varFromStack is double)
+            else if (item is NumItem && varFromStack is double)
             {
-                (currItem as NumItem).Value = varFromStack;
+                (item as NumItem).Value = varFromStack;
             }
             else
             {
-                throw new ExecutorException("Cannot assign "); // TODO
+                throw new ExecutorException($"Cannot assign {varFromStack} to {item}");
             }
         }
 
         public void Visit(BlockStatement blockStmt)
         {
+            Environment.NewScope();
+
             foreach (INode statement in blockStmt.Statements)
             {
                 statement.Accept(this);
@@ -131,9 +139,11 @@ namespace LogoInterpreter.Interpreter
                 if (wasReturn && inFunction)
                 {
                     wasReturn = false;
-                    return;
+                    break;
                 }
             }
+
+            Environment.DeleteScope();
         }
 
         public void Visit(EqualCondition equalCond)
@@ -151,6 +161,10 @@ namespace LogoInterpreter.Interpreter
                 if (rightOper.GetType() != leftOper.GetType())
                 {
                     throw new ExecutorException("Cannot perform relational condition on operands different than double");
+                }
+                else if (leftOper is TurtleItem || leftOper is TurtleItem)
+                {
+                    throw new ExecutorException("Cannot perform an arithmetic operation on operands of type Turtle");
                 }
 
                 dynamic result = oper switch
@@ -193,6 +207,7 @@ namespace LogoInterpreter.Interpreter
 
             if (funcCallExprParam.Unary)
             {
+                // Add negation
                 Environment.PushToTheStack(Environment.PopFromTheStack() * (-1));
             }
         }
@@ -229,8 +244,7 @@ namespace LogoInterpreter.Interpreter
 
             dynamic cond = Environment.PopFromTheStack();
 
-            Environment.NewScope();
-
+            // Accept relational truth and num value greater than 0
             if ((cond is double && cond > 0) || (cond is bool && cond))
             {
                 ifStmt.Body.Accept(this);
@@ -239,8 +253,6 @@ namespace LogoInterpreter.Interpreter
             {
                 ifStmt.ElseBody.Accept(this);
             }
-
-            Environment.DeleteScope();
         }
 
         public void Visit(MethCall methCall)
@@ -334,6 +346,10 @@ namespace LogoInterpreter.Interpreter
                 {
                     throw new ExecutorException("Cannot perform an arithmetic operation on operands of different types");
                 }
+                else if (leftOper is TurtleItem || leftOper is TurtleItem)
+                {
+                    throw new ExecutorException("Cannot perform an arithmetic operation on operands of type Turtle");
+                }
 
                 dynamic result = oper switch
                 {
@@ -367,6 +383,10 @@ namespace LogoInterpreter.Interpreter
                 {
                     throw new ExecutorException("Cannot perform relational condition on operands different than double");
                 }
+                else if (leftOper is TurtleItem || leftOper is TurtleItem)
+                {
+                    throw new ExecutorException("Cannot perform an arithmetic operation on operands of type Turtle");
+                }
 
                 dynamic result = oper switch
                 {
@@ -389,13 +409,9 @@ namespace LogoInterpreter.Interpreter
 
             if (numOfTimes is double)
             {
-                for (int loopCntr = 0; loopCntr < numOfTimes; loopCntr++)
+                for (int loopCntr = 0; loopCntr < (int)numOfTimes; loopCntr++)
                 {
-                    Environment.NewScope();
-
                     repeatStmt.Body.Accept(this);
-
-                    Environment.DeleteScope();
                 }
             }
             else
