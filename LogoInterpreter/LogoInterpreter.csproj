@@ -7,4 +7,12 @@
     <ApplicationIcon>turtle.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Img\turtle.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Img\turtle.png" />
+  </ItemGroup>
+
 </Project>

@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -36,7 +30,7 @@ namespace LogoInterpreter.Interpreter
 
             this.canvas = canvas;
             turtleImg = new Image();
-            turtleImg.Source = new BitmapImage(new Uri("C:/Users/opalk/source/repos/LogoInterpreter/LogoInterpreter/Img/turtle.png"));
+            turtleImg.Source = new BitmapImage(new Uri("/Img/turtle.png", UriKind.Relative));
             turtleImg.Width = 32;
             turtleImg.Height = 32;
 

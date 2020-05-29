@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Media.TextFormatting;
-using System.Windows.Shapes;
-
-namespace LogoInterpreter.Interpreter
+﻿namespace LogoInterpreter.Interpreter
 {
     public class StringSource : ISource
     {

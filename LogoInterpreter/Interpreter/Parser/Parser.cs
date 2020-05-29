@@ -36,7 +36,7 @@ namespace LogoInterpreter.Interpreter
 
             if (!(lexer.Token is EndOfTextToken))
             {
-                throw new ParserException("Did not reach end of text");
+                throw new ParserException("Did not reach end of text, neither statement nor function definition found in " + lexer.Token.Position);
             }
             
             return new Program(statements, funcDefs);

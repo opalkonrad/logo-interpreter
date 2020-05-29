@@ -77,14 +77,6 @@ namespace LogoInterpreter.Tests
         }
 
         [TestMethod]
-        public void NextToken_BlueKeyword_SetTokenToBlueToken()
-        {
-            var lexer = new Lexer(new StringSource("Blue"));
-            lexer.NextToken();
-            Assert.IsInstanceOfType(lexer.Token, typeof(BlueToken));
-        }
-
-        [TestMethod]
         public void NextToken_CommaChar_SetTokenToCommaToken()
         {
             var lexer = new Lexer(new StringSource(","));
@@ -146,14 +138,6 @@ namespace LogoInterpreter.Tests
             var lexer = new Lexer(new StringSource(">"));
             lexer.NextToken();
             Assert.IsInstanceOfType(lexer.Token, typeof(GreaterThanToken));
-        }
-
-        [TestMethod]
-        public void NextToken_GreenKeyword_SetTokenToGreenToken()
-        {
-            var lexer = new Lexer(new StringSource("Green"));
-            lexer.NextToken();
-            Assert.IsInstanceOfType(lexer.Token, typeof(GreenToken));
         }
 
         [TestMethod]
@@ -316,14 +300,6 @@ namespace LogoInterpreter.Tests
             var lexer = new Lexer(new StringSource("+"));
             lexer.NextToken();
             Assert.IsInstanceOfType(lexer.Token, typeof(PlusToken));
-        }
-
-        [TestMethod]
-        public void NextToken_RedKeyword_SetTokenToRedToken()
-        {
-            var lexer = new Lexer(new StringSource("Red"));
-            lexer.NextToken();
-            Assert.IsInstanceOfType(lexer.Token, typeof(RedToken));
         }
 
         [TestMethod]

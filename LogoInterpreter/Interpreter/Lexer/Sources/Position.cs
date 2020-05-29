@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LogoInterpreter.Interpreter
+﻿namespace LogoInterpreter.Interpreter
 {
     public class Position
     {
@@ -45,7 +41,7 @@ namespace LogoInterpreter.Interpreter
 
         public override string ToString()
         {
-            return "Position: col = " + Column + ", ln = " + Line + ", ch = " + Char;
+            return "position: col = " + Column + ", ln = " + Line + ", ch = " + Char;
         }
     }
 }

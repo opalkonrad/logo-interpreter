@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace LogoInterpreter.Interpreter
@@ -12,7 +7,7 @@ namespace LogoInterpreter.Interpreter
     {
         public Token Token { get; private set; }
 
-        private ISource source;
+        private readonly ISource source;
         private Position beginPosition;
         private Token peekedToken;
 

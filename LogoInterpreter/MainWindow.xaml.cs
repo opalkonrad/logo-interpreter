@@ -1,11 +1,8 @@
-﻿using System.Windows;
-using System.IO;
+﻿using LogoInterpreter.Interpreter;
 using Microsoft.Win32;
-using LogoInterpreter.Interpreter;
-using System.Windows.Controls;
 using System;
-using System.Windows.Media;
-using System.Windows.Controls.Primitives;
+using System.IO;
+using System.Windows;
 
 namespace LogoInterpreter
 {
@@ -35,6 +32,8 @@ namespace LogoInterpreter
             {
                 CodeEditorTextBox.Text = File.ReadAllText(openFile.FileName);
             }
+
+            MainCanvas.Children.Clear();
         }
 
         private void Run_Click(object sender, RoutedEventArgs e)
