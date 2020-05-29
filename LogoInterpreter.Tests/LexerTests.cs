@@ -52,14 +52,6 @@ namespace LogoInterpreter.Tests
         }
 
         [TestMethod]
-        public void NextToken_AndChar_SetTokenToAndToken()
-        {
-            var lexer = new Lexer(new StringSource("&"));
-            lexer.NextToken();
-            Assert.IsInstanceOfType(lexer.Token, typeof(AndToken));
-        }
-
-        [TestMethod]
         public void NextToken_AssignmentChar_SetTokenToAssignmentToken()
         {
             var lexer = new Lexer(new StringSource("="));
@@ -287,14 +279,6 @@ namespace LogoInterpreter.Tests
         }
 
         [TestMethod]
-        public void NextToken_OrChar_SetTokenToOrToken()
-        {
-            var lexer = new Lexer(new StringSource("|"));
-            lexer.NextToken();
-            Assert.IsInstanceOfType(lexer.Token, typeof(OrToken));
-        }
-
-        [TestMethod]
         public void NextToken_PlusChar_SetTokenToPlusToken()
         {
             var lexer = new Lexer(new StringSource("+"));
@@ -332,14 +316,6 @@ namespace LogoInterpreter.Tests
             var lexer = new Lexer(new StringSource("}"));
             lexer.NextToken();
             Assert.IsInstanceOfType(lexer.Token, typeof(RSquareBracketToken));
-        }
-
-        [TestMethod]
-        public void NextToken_SemicolonChar_SetTokenToSemicolonToken()
-        {
-            var lexer = new Lexer(new StringSource(";"));
-            lexer.NextToken();
-            Assert.IsInstanceOfType(lexer.Token, typeof(SemicolonToken));
         }
 
         [TestMethod]

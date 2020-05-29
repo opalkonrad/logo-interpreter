@@ -148,11 +148,6 @@ namespace LogoInterpreter.Interpreter
                     Token = new CommaToken(beginPosition);
                     source.MoveToNextChar();
                     return true;
-
-                case ';':
-                    Token = new SemicolonToken(beginPosition);
-                    source.MoveToNextChar();
-                    return true;
             }
 
             return false;
@@ -305,16 +300,6 @@ namespace LogoInterpreter.Interpreter
 
                 case '/':
                     Token = new SlashToken(beginPosition);
-                    source.MoveToNextChar();
-                    return true;
-
-                case '&':
-                    Token = new AndToken(beginPosition);
-                    source.MoveToNextChar();
-                    return true;
-
-                case '|':
-                    Token = new OrToken(beginPosition);
                     source.MoveToNextChar();
                     return true;
 
