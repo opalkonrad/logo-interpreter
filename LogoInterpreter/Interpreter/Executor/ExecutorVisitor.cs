@@ -177,19 +177,26 @@ namespace LogoInterpreter.Interpreter
 
         public void Visit(FuncCall funcCall)
         {
-            // Check parameters count
-            if (funcCall.Arguments.Count == Program.FuncDefinitions[funcCall.Name].Parameters.Count)
+            if (Program.FuncDefinitions.ContainsKey(funcCall.Name))
             {
-                foreach (INode arg in funcCall.Arguments)
+                // Check parameters count
+                if (funcCall.Arguments.Count == Program.FuncDefinitions[funcCall.Name].Parameters.Count)
                 {
-                    arg.Accept(this);
-                }
+                    foreach (INode arg in funcCall.Arguments)
+                    {
+                        arg.Accept(this);
+                    }
 
-                Program.FuncDefinitions[funcCall.Name].Accept(this);
+                    Program.FuncDefinitions[funcCall.Name].Accept(this);
+                }
+                else
+                {
+                    throw new ExecutorException($"Wrong number of arguments in function call called {funcCall.Name}");
+                }
             }
             else
             {
-                throw new ExecutorException($"Wrong number of arguments in function call called {funcCall.Name}");
+                throw new ExecutorException($"Did not find function called {funcCall.Name}");
             }
         }
 

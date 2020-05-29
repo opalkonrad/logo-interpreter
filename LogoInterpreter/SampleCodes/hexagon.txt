@@ -1,0 +1,25 @@
+func partialHex(num angle, num length, str color)
+{
+	Turtle turtle
+	turtle.LineThickness(3)
+	turtle.LineColor(color)
+	turtle.Right(angle)
+	turtle.Forward(length)
+	turtle.Right(120)
+	turtle.Forward(length)
+}
+
+func hexagon(num length, str color)
+{
+	num angle
+	angle = 0
+	
+	repeat(6)
+	{
+		partialHex(angle, length, color)
+
+		angle = angle + 60
+	}
+}
+
+hexagon(200, "Blue")
