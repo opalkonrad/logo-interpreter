@@ -450,11 +450,11 @@ namespace LogoInterpreter.Interpreter
                     switch (lexer.Token)
                     {
                         case EqualToken _:
-                            firstOperand.Operators.Add(EqualToken.Text);
+                            equalCondition.Operators.Add(EqualToken.Text);
                             break;
 
                         case NotEqualToken _:
-                            firstOperand.Operators.Add(NotEqualToken.Text);
+                            equalCondition.Operators.Add(NotEqualToken.Text);
                             break;
                     }
                     lexer.NextToken();

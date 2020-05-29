@@ -1,0 +1,21 @@
+func square(Turtle obj, num len, str color, num thick)
+{
+	obj.LineColor(color)
+	obj.LineThickness(thick)
+
+	repeat(4)
+	{
+		obj.Forward(len)
+		obj.Right(90)
+	}
+}
+
+Turtle zenek
+
+str color
+color = "Green"
+
+num thickness
+thickness = 2
+
+square(zenek, 150, color, thickness)
