@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.CodeDom.Compiler;
+using System.Windows.Controls;
 
 namespace LogoInterpreter.Interpreter
 {
@@ -84,6 +85,10 @@ namespace LogoInterpreter.Interpreter
                 {
                     throw new ExecutorException("Cannot perform an arithmetic operation on operands of type Turtle");
                 }
+                else if (rightOper is string && leftOper is string && oper == "-")
+                {
+                    throw new ExecutorException("Cannot substract str value from str value");
+                }
 
                 dynamic result = oper switch
                 {
@@ -115,7 +120,7 @@ namespace LogoInterpreter.Interpreter
             }
             else
             {
-                throw new ExecutorException($"Cannot assign {varFromStack} to {item}");
+                throw new ExecutorException($"Cannot assign {varFromStack} to {item.Name}");
             }
         }
 
@@ -349,6 +354,14 @@ namespace LogoInterpreter.Interpreter
                 {
                     throw new ExecutorException("Cannot perform an arithmetic operation on operands of type Turtle");
                 }
+                else if (rightOper is double && rightOper == 0)
+                {
+                    throw new ExecutorException("Dividing by 0");
+                }
+                else if (!(rightOper is double) && !(leftOper is double))
+                {
+                    throw new ExecutorException("Cannot apply multiplication operator on types different than num");
+                }
 
                 dynamic result = oper switch
                 {
@@ -385,6 +398,10 @@ namespace LogoInterpreter.Interpreter
                 else if (leftOper is TurtleItem || leftOper is TurtleItem)
                 {
                     throw new ExecutorException("Cannot perform an arithmetic operation on operands of type Turtle");
+                }
+                else if (!(rightOper is double) && !(leftOper is double))
+                {
+                    throw new ExecutorException("Cannot apply relational condition on types different than num");
                 }
 
                 dynamic result = oper switch
